@@ -23,8 +23,13 @@ dashboardPagePlus(
                   width = 12,
                   userList(
                     userListItem(
-                      img(src = "https://image.flaticon.com/icons/svg/204/204074.svg"), 
+                      src = "https://raw.githubusercontent.com/Sanrrone/ESCLAVO/master/images/16srrna.png", 
                       user_name = "16S", 
+                      description = "28.04.2018"
+                    ),
+                    userListItem(
+                      src = "https://www.rstudio.com/wp-content/uploads/2014/04/knitr.png", 
+                      user_name = "knitr", 
                       description = "28.04.2018"
                     )
                   )
