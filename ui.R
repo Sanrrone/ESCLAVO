@@ -5,16 +5,23 @@ library(shinydashboard)
 library(shinydashboardPlus)
 library(base64enc)
 source("Modules/header_ui.R")
+source("Modules/rsidebar_ui.R")
+source("Modules/functions.R")
+
+#analysisAvail=c("16s18sits"=1,"rnaseq"=2,"metagenomic"=3,"gbs"=4)
+#source from functions.R
 
 dashboardPagePlus(
   skin = "blue-light",
-  header = headerUIm("headerUImodule"),
+  header = headerUIm("headerUImodule",analysisAvail),
   sidebar = dashboardSidebar(
     sidebarMenu(
       menuItem("welcome", tabName = "Welcome", icon = icon("dashboard"),selected = T),
       uiOutput("tabsDef")
     )
   ),
+  rightsidebar = uiOutput("rsidebarcontent"),
+  
   body = dashboardBody(
     tags$head(tags$style(HTML('
       .main-header .logo {
@@ -31,28 +38,7 @@ dashboardPagePlus(
                   title = "Available analysis",
                   status = "success",
                   width = 12,
-                  userList(
-                    userListItem(
-                      src = dataURI(file="images/16srrna.png", mime="image/png"), 
-                      user_name = "16S, 18S/ITS", 
-                      description = "Updated: August 2019"
-                    ),
-                    userListItem(
-                        src = dataURI(file="images/rnaseq.jpg", mime="image/png"), 
-                        user_name = "RNA-seq", 
-                        description = "Updated: August 2019"
-                    ),
-                    userListItem(
-                      src = dataURI(file="images/metagenomic.jpg", mime="image/png"), 
-                      user_name = "Metagenomic", 
-                      description = "Updated: August 2019"
-                    ),
-                    userListItem(
-                      src = dataURI(file="images/gbs.jpg", mime="image/png"), 
-                      user_name = "Genotype by sequencing", 
-                      description = "Updated: August 2019"
-                    )
-                  )
+                  uiOutput("itemListUI")
                 )
               ),
               fluidRow(
@@ -95,8 +81,7 @@ dashboardPagePlus(
                 )
               )
               
-      ),
-      uiOutput("tabs")
+      )
     )
   ),
   title = "ESCLAVO-PROJECT"

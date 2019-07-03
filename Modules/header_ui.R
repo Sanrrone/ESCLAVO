@@ -1,11 +1,13 @@
 # Module UI function
-headerUIm <- function(id) {
+headerUIm <- function(id,analysisAvail) {
   # Create a namespace function using the provided id
   ns <- NS(id)
   
   dashboardHeaderPlus(
-    title = "ESCLAVO v1.0",
-    enable_rightsidebar = F,
+    title = tagList(
+      span(class = "logo-lg", "ESCLAVO v1.0"), 
+      icon("heart")),
+    enable_rightsidebar = T,
     rightSidebarIcon = "gears",
     left_menu = tagList(
       uiOutput("header_dropdown_proyectName"),
