@@ -3,16 +3,22 @@ library(shinyFiles)
 library(shinyWidgets)
 library(shinydashboard)
 library(shinydashboardPlus)
+library(shinyBS)
 library(base64enc)
+source("Classes/generic_pipeline_structure.R")
+source("Modules/functions.R")
 source("Modules/header_ui.R")
 source("Modules/rsidebar_ui.R")
-source("Modules/functions.R")
+source("Modules/analysisAvails_ui.R")
+source("Modules/mainButtons_ui.R")
+source("Modules/news_ui.R")
+
 
 #analysisAvail=c("16s18sits"=1,"rnaseq"=2,"metagenomic"=3,"gbs"=4)
 #source from functions.R
 
 dashboardPagePlus(
-  skin = "blue-light",
+  skin = "red-light",
   header = headerUIm("headerUImodule",analysisAvail),
   sidebar = dashboardSidebar(
     sidebarMenu(
@@ -20,7 +26,7 @@ dashboardPagePlus(
       uiOutput("tabsDef")
     )
   ),
-  rightsidebar = uiOutput("rsidebarcontent"),
+  rightsidebar = rightsidebarUIm("rsidebarmodule",analysisAvail),
   
   body = dashboardBody(
     tags$head(tags$style(HTML('
@@ -34,53 +40,10 @@ dashboardPagePlus(
       # First tab content
       tabItem(tabName = "Welcome",
               fluidRow(
-                box(
-                  title = "Available analysis",
-                  status = "success",
-                  width = 12,
-                  uiOutput("itemListUI")
-                )
+                analysisAvailUIm("analysisavails",analysisAvail)
               ),
-              fluidRow(
-                box(
-                  title = "Create new project",
-                  status = "success",
-                  width = 4,
-                  actionBttn(
-                    inputId = "newprojectbtn",
-                    label = "Start",
-                    style = "material-flat",
-                    color = "success",
-                    icon = icon("rocket")
-                  )
-                ),
-                box(
-                  title = "Search existing project",
-                  status = "success",
-                  width = 4,
-                  actionBttn(
-                    inputId = "openprojectbtn",
-                    label = "Open",
-                    style = "material-flat",
-                    color = "success",
-                    icon = icon("folder")
-                  )
-                  #shinyDirButton("openprojectbtn", "Chose directory", "Upload")
-                ),
-                box(
-                  title = "Change project directory",
-                  status = "success",
-                  width = 4,
-                  actionBttn(
-                    inputId = "changeprojectdirbtn",
-                    label = "Choose",
-                    style = "material-flat",
-                    color = "success",
-                    icon = icon("gears")
-                  )
-                )
-              )
-              
+              mainButtonUIm("mainButtons"),
+              newsUIm("news")
       )
     )
   ),

@@ -5,7 +5,7 @@ headerUIm <- function(id,analysisAvail) {
   
   dashboardHeaderPlus(
     title = tagList(
-      span(class = "logo-lg", "ESCLAVO v1.0"), 
+      span(class = "logo-lg", "ESCLAVO"), 
       icon("heart")),
     enable_rightsidebar = T,
     rightSidebarIcon = "gears",
