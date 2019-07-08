@@ -1,12 +1,19 @@
 setClass("pipeline", representation=list(
   id="character",
   name="character",
+  version="numeric",
   image="character",
   steps="list",
   stepsOptions="list"
   
   )
 )
+setGeneric("getAnalysisName", function(ob) {standardGeneric("getAnalysisName")})
+setMethod("getAnalysisName", "pipeline", function(ob) {return(ob@name)})
+
+setGeneric("getAnalysisVersion", function(ob) {standardGeneric("getAnalysisVersion")})
+setMethod("getAnalysisVersion", "pipeline", function(ob) {return(ob@version)})
+
 setGeneric("getAnalysisOptions", function(ob) {standardGeneric("getAnalysisOptions")})
 setMethod("getAnalysisOptions", "pipeline", function(ob) {
           accordionItem(
@@ -17,7 +24,7 @@ setMethod("getAnalysisOptions", "pipeline", function(ob) {
               "This is some text!"
             )
               
-          }
+       }
 )
 
 setGeneric("getAnalysisImages", function(ob) {standardGeneric("getAnalysisImages")})

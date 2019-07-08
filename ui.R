@@ -1,10 +1,11 @@
 library(shiny)
-library(shinyFiles)
+library(shinyDirectoryInput) #devtools::install_github('wleepang/shiny-directory-input')
 library(shinyWidgets)
 library(shinydashboard)
 library(shinydashboardPlus)
-library(shinyBS)
 library(base64enc)
+library(filesstrings)
+#library(jsonlite)
 source("Classes/generic_pipeline_structure.R")
 source("Modules/functions.R")
 source("Modules/header_ui.R")
@@ -42,7 +43,7 @@ dashboardPagePlus(
               fluidRow(
                 analysisAvailUIm("analysisavails",analysisAvail)
               ),
-              mainButtonUIm("mainButtons"),
+              mainButtonsUIm("mainButtons"),
               newsUIm("news")
       )
     )
