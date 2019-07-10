@@ -10,24 +10,22 @@ source("Classes/generic_pipeline_structure.R")
 source("Modules/functions.R")
 source("Modules/header_ui.R")
 source("Modules/rsidebar_ui.R")
-source("Modules/analysisAvails_ui.R")
-source("Modules/mainButtons_ui.R")
-source("Modules/news_ui.R")
+source("Modules/callTabDef_ui.R")
+source("Modules/callTabContent_ui.R")
 
 
 #analysisAvail=c("16s18sits"=1,"rnaseq"=2,"metagenomic"=3,"gbs"=4)
 #source from functions.R
 
+
 dashboardPagePlus(
   skin = "red-light",
-  header = headerUIm("headerUImodule",analysisAvail),
+  header = headerUIm("headerUImodule"),
   sidebar = dashboardSidebar(
-    sidebarMenu(
-      menuItem("welcome", tabName = "Welcome", icon = icon("dashboard"),selected = T),
-      uiOutput("tabsDef")
-    )
+    sidebarMenu( menuItem("welcome", tabName = "Welcome", icon = icon("dashboard"))),
+    callTabDefUIm("tabdefmodule")
   ),
-  rightsidebar = rightsidebarUIm("rsidebarmodule",analysisAvail),
+  rightsidebar = rightsidebarUIm("rsidebarmodule"),
   
   body = dashboardBody(
     tags$head(tags$style(HTML('
@@ -38,14 +36,19 @@ dashboardPagePlus(
       }'
     ))),
     tabItems(
-      # First tab content
-      tabItem(tabName = "Welcome",
-              fluidRow(
-                analysisAvailUIm("analysisavails",analysisAvail)
-              ),
-              mainButtonsUIm("mainButtons"),
-              newsUIm("news")
-      )
+      tabItem( #fist tab - static
+        tabName = "Welcome",
+        fluidRow(
+          analysisAvailUIm("analysisavails")
+        ),
+        fluidRow(
+          newProjectUIm("startProjectmodule"),
+          openProjectUIm("openProjectmodule"),
+          changeProjectDirUIm("changeProjectDirmodule")
+        ),
+        newsUIm("news")
+      ),
+      callTabContent("tabcontmodule")
     )
   ),
   title = "ESCLAVO-PROJECT"

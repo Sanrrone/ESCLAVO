@@ -1,6 +1,6 @@
 newProjectModule<-function(input, output, session) {
   ns <- session$ns
-  
+    
   observeEvent(input$newprojectbtn,{
     showModal(modalDialog(size = "l",
                           easyClose = TRUE,
@@ -102,7 +102,7 @@ newProjectModule<-function(input, output, session) {
       sendSweetAlert(session,title = "Warning",text = "No fastq folder select",type = "error")
       return()
     }
-
+    loadingState()
     switch(input$fastqActions,
            "1" = {},
            "2" = {system(paste("cp -r", Fpath, paste0(Ppath,"/0-fastq")),wait = T);Fpath<-paste0(Ppath,"/0-fastq")},
@@ -114,14 +114,13 @@ newProjectModule<-function(input, output, session) {
                            getAnalysisVersion(pipelines[[input$analysisType]]),
                            "open")
     pname<-strsplit(Ppath,"/")[[1]]
-
-    write.table(aoptions,paste0(pname[length(pname)],"_eConf.tsv"),row.names = F,quote = F,sep = "\t")
-    
+    pname<-pname[length(pname)]
+    write.table(aoptions,paste0(pname,"_eConf.tsv"),row.names = F,quote = F,sep = "\t")
+    #callModule(tabDefModule,"tabdefmodule",pname,input$analysisType)
+    projectName(pname)
+    analysisType(input$analysisType)
     removeModal()
 
-    
-    })
+  })
 
-  
-  
 }

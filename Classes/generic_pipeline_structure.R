@@ -8,11 +8,17 @@ setClass("pipeline", representation=list(
   
   )
 )
+setGeneric("getAnalysisID", function(ob) {standardGeneric("getAnalysisID")})
+setMethod("getAnalysisID", "pipeline", function(ob) {return(ob@id)})
+
 setGeneric("getAnalysisName", function(ob) {standardGeneric("getAnalysisName")})
 setMethod("getAnalysisName", "pipeline", function(ob) {return(ob@name)})
 
 setGeneric("getAnalysisVersion", function(ob) {standardGeneric("getAnalysisVersion")})
 setMethod("getAnalysisVersion", "pipeline", function(ob) {return(ob@version)})
+
+setGeneric("getAnalysisSteps", function(ob) {standardGeneric("getAnalysisSteps")})
+setMethod("getAnalysisSteps", "pipeline", function(ob) {return(ob@steps)})
 
 setGeneric("getAnalysisOptions", function(ob) {standardGeneric("getAnalysisOptions")})
 setMethod("getAnalysisOptions", "pipeline", function(ob) {

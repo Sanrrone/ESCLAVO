@@ -1,5 +1,5 @@
 # Module UI function
-headerUIm <- function(id,analysisAvail) {
+headerUIm <- function(id) {
   # Create a namespace function using the provided id
   ns <- NS(id)
   

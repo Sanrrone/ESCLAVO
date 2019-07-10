@@ -7,7 +7,8 @@ for(module in names(analysisAvail)){
   source(paste0("Classes/",module,"_object.R"))
   pipelines[[module]]<-getpipeline()
 }
-
+projectName<-reactiveVal("")
+analysisType<-reactiveVal("")
 projectsFolder="/home/sandro/Programas/ESCLAVO/projects"
 
 makeProjectDescription<-function(projectFolder, fastqFolder, analysisType, aVersion, pStatus){
