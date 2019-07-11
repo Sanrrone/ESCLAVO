@@ -3,9 +3,11 @@ library(shinyDirectoryInput) #devtools::install_github('wleepang/shiny-directory
 library(shinyWidgets)
 library(shinydashboard)
 library(shinydashboardPlus)
+library(dashboardthemes)
 library(base64enc)
 library(filesstrings)
 #library(jsonlite)
+source("Modules/themes_modules.R")
 source("Classes/generic_pipeline_structure.R")
 source("Modules/functions.R")
 source("Modules/header_ui.R")
@@ -19,15 +21,15 @@ source("Modules/callTabContent_ui.R")
 
 
 dashboardPagePlus(
-  skin = "red-light",
+  #skin = "black",
   header = headerUIm("headerUImodule"),
   sidebar = dashboardSidebar(
-    sidebarMenu( menuItem("welcome", tabName = "Welcome", icon = icon("dashboard"))),
     callTabDefUIm("tabdefmodule")
   ),
   rightsidebar = rightsidebarUIm("rsidebarmodule"),
   
   body = dashboardBody(
+   uiChangeThemeOutput(),
     tags$head(tags$style(HTML('
       .main-header .logo {
         font-family: "Georgia", Times, "Times New Roman", serif;
@@ -35,21 +37,8 @@ dashboardPagePlus(
         font-size: 25px;
       }'
     ))),
-    tabItems(
-      tabItem( #fist tab - static
-        tabName = "Welcome",
-        fluidRow(
-          analysisAvailUIm("analysisavails")
-        ),
-        fluidRow(
-          newProjectUIm("startProjectmodule"),
-          openProjectUIm("openProjectmodule"),
-          changeProjectDirUIm("changeProjectDirmodule")
-        ),
-        newsUIm("news")
-      ),
-      callTabContent("tabcontmodule")
-    )
+    callTabContent("tabcontmodule")
+    
   ),
   title = "ESCLAVO-PROJECT"
 )

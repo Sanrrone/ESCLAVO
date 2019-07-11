@@ -5,7 +5,8 @@ source("Modules/analysisAvails_server.R")
 source("Modules/callTabContent_server.R")
 
 function(input, output) {
-  
+
+  callModule(module = serverChangeTheme, id = "moduleChangeTheme")
   callModule(rsidebarModule,"rsidebarmodule")
   callModule(tabDefModule,"tabdefmodule")
   callModule(analysisAvailsModule,"analysisavails")

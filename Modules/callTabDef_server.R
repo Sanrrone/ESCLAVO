@@ -4,8 +4,7 @@ tabDefModule<-function(input, output, session){
   output$tabsDefUI<- renderMenu({
 
     if(projectName()!=""){
-      
-      sidebarMenu(
+      sidebarMenu(menuItem("welcome", tabName = "Welcome", icon = icon("dashboard")),
         menuItem(paste0("Project: ",projectName()), tabName = "projectStatus",
                  icon = icon("chalkboard-teacher"),selected = T),
         lapply(getAnalysisSteps(pipelines[[analysisType()]]),function(x){
@@ -13,8 +12,10 @@ tabDefModule<-function(input, output, session){
         }),
         menuItem("Static Report", tabName = "staticProjectReport", icon = icon("file-pdf")),
         menuItem("Dynamic Report", tabName = "dynamicProjectReport", icon = icon("html5"))
-        
       )
+      
+    }else{
+      sidebarMenu(menuItem("welcome", tabName = "Welcome", icon = icon("dashboard")))
     }
   })
   
