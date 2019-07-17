@@ -3,7 +3,7 @@ library(shinyDirectoryInput) #devtools::install_github('wleepang/shiny-directory
 library(shinyWidgets)
 library(shinydashboard)
 library(shinydashboardPlus)
-library(dashboardthemes)
+library(dashboardthemes) #install_github("nik01010/dashboardthemes")
 library(base64enc)
 library(filesstrings)
 #library(jsonlite)
@@ -21,7 +21,9 @@ source("Modules/callTabContent_ui.R")
 
 
 dashboardPagePlus(
-  #skin = "black",
+  #“blue”, “blue-light”, “black”, “black-light”, “purple”, “purple-light”, 
+  #“green”, “green-light”, “red”, “red-light”, “yellow”, “yellow-light”
+  skin = "red-light",
   header = headerUIm("headerUImodule"),
   sidebar = dashboardSidebar(
     callTabDefUIm("tabdefmodule")
@@ -37,6 +39,8 @@ dashboardPagePlus(
         font-size: 25px;
       }'
     ))),
+   tags$head(tags$style(".modal-content {background: transparent;
+                         box-shadow: inset 1px 2000px rgba(208, 208, 208, 0)}")),
     callTabContent("tabcontmodule")
     
   ),

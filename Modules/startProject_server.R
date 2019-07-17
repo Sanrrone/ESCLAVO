@@ -4,41 +4,48 @@ newProjectModule<-function(input, output, session) {
   observeEvent(input$newprojectbtn,{
     showModal(modalDialog(size = "l",
                           easyClose = TRUE,
-                          gradientBox(title = "New Project",
-                                      gradientColor = "purple",
-                                      closable = F,
-                                      width = 12,
-                                      directoryInput(inputId = ns('newProjectFolder'), 
-                                                     label = 'Project folder (name)',
-                                                     value = projectsFolder),
-                                      directoryInput(inputId = ns('newProjectFastq'), 
-                                                     label = 'Where are the Project fastq files?'),
-                                      uiOutput(ns("fastqOptions")),
-                                      awesomeRadio(
-                                        inputId = ns("analysisType"),
-                                        label = "Select analysis to perform", 
-                                        choices = unlist(lapply(names(pipelines),function(x){
-                                              niceName<-c(getAnalysisName(pipelines[[x]]))
-                                              names(x)<-niceName
-                                              x
-                                            })),
-                                        status = "primary"
-                                      ),
-                                      tags$br(),
-                                      fluidRow(
-                                        column(width = 4),
-                                        column(width = 4,                  
-                                               actionBttn(
-                                                 inputId = ns("submitNewProyect"),
-                                                 label = "Go!",
-                                                 style = "jelly",
-                                                 color = "danger",
-                                                 icon = icon("rocket")
-                                               )),
-                                        column(width = 4)
-                                      )
-                          )
-    ))
+                          gradientBox(title = "New Project", gradientColor = "red",
+                                      closable = F, icon = "fa fa-project-diagram",
+                                      width = 12,footer = fluidRow(column(width = 12,
+                                        directoryInput(inputId = ns('newProjectFolder'), 
+                                                       label = 'Project folder (name)',
+                                                       value = projectsFolder),
+                                        directoryInput(inputId = ns('newProjectFastq'), 
+                                                       label = 'Where are the Project fastq files?'),
+                                        uiOutput(ns("fastqOptions")),
+                                        awesomeRadio(
+                                          inputId = ns("analysisType"),
+                                          label = "Select analysis to perform", 
+                                          choices = unlist(lapply(names(pipelines),function(x){
+                                            niceName<-c(getAnalysisName(pipelines[[x]]))
+                                            names(x)<-niceName
+                                            x
+                                          })),
+                                          status = "primary"
+                                        ),
+                                        tags$br(),
+                                        fluidRow(
+                                          column(width = 2),
+                                          column(width = 3,                  
+                                                 actionBttn(
+                                                   inputId = ns("submitNewProyect"),
+                                                   label = "Go!",
+                                                   style = "jelly",
+                                                   color = "danger",
+                                                   icon = icon("rocket")
+                                                 )),
+                                          column(width = 1),
+                                          column(width = 3,
+                                                 modalButton(label = "Dismiss",icon = icon("close"))
+                                          )
+                                        ),
+                                        column(width = 3)
+                                      ))
+
+                          ),
+                          footer = NULL
+            )
+    )
   })
   
   observeEvent(eventExpr = input$newProjectFolder, {

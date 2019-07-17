@@ -1,8 +1,8 @@
 # Ui functions ------------------------------------------------------------
-uiChangeThemeDropdown <- function(dropDownLabel = "Change Theme", defaultTheme = "grey_light")
+uiChangeThemeDropdown <- function(dropDownLabel = "Dashboard Theme")
 {
   changeThemeChoices <- c(
-    "default" = "",
+    "Default" = NA,
     "Blue gradient" = "blue_gradient",
     "BoE website" = "boe_website",
     "Grey light" = "grey_light",
@@ -13,16 +13,17 @@ uiChangeThemeDropdown <- function(dropDownLabel = "Change Theme", defaultTheme =
   )
   
   ns <- NS("moduleChangeTheme")
-  dropdown <- tagList(
+  dropdownBlock(
+    id = "mydropdown",
+    title = "Dashboard Theme",
+    icon = "sliders",
     selectizeInput(
       inputId = ns("dbxChangeTheme"),
       label = dropDownLabel,
-      choices = changeThemeChoices,
-      selected = defaultTheme
+      choices = changeThemeChoices
     )
   )
-  
-  return(dropdown)
+
 }
 
 uiChangeThemeOutput <- function()
@@ -39,9 +40,7 @@ uiChangeThemeOutput <- function()
 # Server functions --------------------------------------------------------
 serverChangeTheme <- function(input, output, session)
 {
-  observeEvent(
-    input$dbxChangeTheme, 
-    {
+  observeEvent(input$dbxChangeTheme,{
       output$uiChangeTheme <- renderUI({
         shinyDashboardThemes(theme = input$dbxChangeTheme)
       })
