@@ -21,8 +21,8 @@ source("Modules/callTabContent_ui.R")
 
 
 dashboardPagePlus(
-  #“blue”, “blue-light”, “black”, “black-light”, “purple”, “purple-light”, 
-  #“green”, “green-light”, “red”, “red-light”, “yellow”, “yellow-light”
+  #"blue", "blue-light", "black", "black-light", "purple", "purple-light", 
+  #"green", "green-light", "red", "red-light", "yellow", "yellow-light"
   skin = "red-light",
   header = headerUIm("headerUImodule"),
   sidebar = dashboardSidebar(
@@ -31,7 +31,7 @@ dashboardPagePlus(
   rightsidebar = rightsidebarUIm("rsidebarmodule"),
   
   body = dashboardBody(
-   uiChangeThemeOutput(),
+   #uiChangeThemeOutput(),
     tags$head(tags$style(HTML('
       .main-header .logo {
         font-family: "Georgia", Times, "Times New Roman", serif;
@@ -41,8 +41,9 @@ dashboardPagePlus(
     ))),
    tags$head(tags$style(".modal-content {background: transparent;
                          box-shadow: inset 1px 2000px rgba(208, 208, 208, 0)}")),
+   tabItems(
     callTabContent("tabcontmodule")
-    
+   )
   ),
   title = "ESCLAVO-PROJECT"
 )

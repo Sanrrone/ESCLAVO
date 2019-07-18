@@ -1,2 +1,9 @@
-pfolder	ffolder	analysis	aversion	created	status
-/home/sandro/Descargas/0-fastq	/home/sandro/Programas/ESCLAVO/projects	16s18sits	1	2019-07-12	open
+value
+pfolder	/home/sandro/Programas/ESCLAVO/0-fastq
+ffolder	/home/sandro/Programas/ESCLAVO/projects
+analysis	metagenomic
+aversion	1
+created	18095
+status	not-performed
+pPercent	0
+lastStep	none

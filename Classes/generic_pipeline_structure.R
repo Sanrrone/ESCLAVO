@@ -40,6 +40,7 @@ setMethod("getAnalysisImages", "pipeline", function(ob) {
     user_name = ob@name, 
     description = "Updated: August 2019"
   )
-  
-}
-)
+})
+
+
+

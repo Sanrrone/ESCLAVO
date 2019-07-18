@@ -119,10 +119,10 @@ newProjectModule<-function(input, output, session) {
     aoptions<-makeProjectDescription(Fpath,Ppath,
                            input$analysisType,
                            getAnalysisVersion(pipelines[[input$analysisType]]),
-                           "open")
+                           "not-performed",0,"none")
     pname<-strsplit(Ppath,"/")[[1]]
     pname<-pname[length(pname)]
-    write.table(aoptions,paste0(pname,"_eConf.tsv"),row.names = F,quote = F,sep = "\t")
+    write.table(aoptions,paste0(pname,"_eConf.tsv"),row.names = T,quote = F,sep = "\t")
     #callModule(tabDefModule,"tabdefmodule",pname,input$analysisType)
     projectName(pname)
     analysisType(input$analysisType)

@@ -1,10 +1,14 @@
 tabContentModule<-function(input, output, session) {
   ns <- session$ns
+  tabButtonLinks<-reactive("")
   
   output$tabContentUI <- renderUI({
+    
     if(projectName()!=""){
-      tabItems(
-          tabItem( #fist tab - static
+
+      pconf<-read.table("projects_eConf.tsv",sep = "\t",header = T,row.names = 1,stringsAsFactors = F)
+      tabitems<-list()
+      tabitems[["welcome"]]<-tabItem( #fist tab - static
             tabName = "Welcome",
             fluidRow(
               analysisAvailUIm("analysisavails")
@@ -15,60 +19,93 @@ tabContentModule<-function(input, output, session) {
               changeProjectDirUIm("changeProjectDirmodule")
             ),
             newsUIm("news")
-          ),
-        tabItem(tabName = "projectStatus",
+          )
+      tabitems[["pstatus"]]<-tabItem(tabName = "projectStatus",
           class = "active",
           fluidRow(
             column(width = 6,
-              gradientBox(title = "Status project",width = 12, icon = 'fa fa-eye',
-                gradientColor = "blue", boxToolSize = "xs", 
-                paste0("Progress of the project according to ",getAnalysisName(pipelines[[analysisType()]]), " pipeline."),
-                footer = fluidRow(column(width = 12,
-                             progressBar(id = "pb1", value = 20, total = 100, status = "info", 
-                                         display_pct = TRUE, striped = TRUE, title = projectName())
-                      )) # server
-                #updateProgressBar(session = session, id = "pb8", value = input$slider, total = 5000)
-              )
+                   gradientBox(title = "Status project",width = 12, icon = 'fa fa-eye',
+                               gradientColor = "blue", boxToolSize = "xs", 
+                               paste0("Progress of the project according to ",getAnalysisName(pipelines[[analysisType()]]), " pipeline."),
+                               footer = fluidRow(column(width = 12,
+                                                        progressBar(id = ns("pb_pstatus"), value = as.numeric(pconf["pPercent",]), total = 100, status = "info", 
+                                                                    display_pct = TRUE, striped = TRUE, title = projectName())
+                               ))# server
+                               #updateProgressBar(session = session, id = "pb8", value = input$slider, total = 5000)
+                   )
             ),
             column(width = 6, gradientBox( title = "Last process performed", width = 12,
-                     icon = 'fa fa-tasks', gradientColor = "blue", 
-                     boxToolSize = "xs", "Progress of lastet modified projects",
-                     footer = fluidRow(
-                       column(width=12,tags$h4("testprocess"))
-                     )
-                     # server
-                     #updateProgressBar(session = session, id = "pb8", value = input$slider, total = 5000)
-                   )
+                                           icon = 'fa fa-tasks', gradientColor = "blue", 
+                                           boxToolSize = "xs",
+                                           footer = fluidRow(
+                                                    if(pconf["lastStep",]=="none"){
+                                                      column(width=12,
+                                                        tags$h5("Project not started yet"),
+                                                        actionBttn(
+                                                          inputId = ns("startPipelinebtn"),
+                                                          label = "Start",
+                                                          style = "jelly",
+                                                          color = "danger",
+                                                          icon = icon("rocket")
+                                                        ))
+                                                    }else{
+                                                      column(width=12,
+                                                      tags$h4(pconf["lastStep",])
+                                                      )
+                                                    }
+                                             )
+                                           )
+                                           # server
+                                           #updateProgressBar(session = session, id = "pb8", value = input$slider, total = 5000)
                 )
           ),
           fluidRow(
             lapply(getAnalysisSteps(pipelines[[analysisType()]]),function(x){
-                      gradientBox(title = "Report summary", width = 4, icon = 'fa fa-file-invoice',
-                                  gradientColor = "gray",  boxToolSize = "xs",
+                    if(!file.exists(paste0(x$folder,"/",x$stepID,".conf"))){
+                      dashblabel<-"not-performed"
+                      stepconf<-data.frame()
+                      oufolder<-""
+                    }else{
+                      stepconf<-read.table(paste0(x$folder,"/",x$stepID,".conf"),
+                                           sep = "\t", header = T, row.names = 1,
+                                           stringsAsFactors = F)
+                      dashlabel<-stepconf["statusStep"]
+                      oufolder<-paste0(projectName(),"/",x$folder)
+                    }
+                      gradientBox(title = x$stepName, width = 4, icon = x$iconHTML,
+                                  gradientColor = "red",  boxToolSize = "xs",
                                   footer = fluidRow(column(width = 12,
                                       column(width = 12, 
-                                             fluidRow(tags$strong(paste0(x$stepName," summary"))),
-                                             fluidRow("Status: ",dashboardLabel("Done", status = "success"),
+                                             fluidRow("Status: ",getDashboardLabel(dashblabel),
                                                       tags$br(),
-                                                      "input files: 6",tags$br(),
-                                                      "output files: 5",tags$br(),
-                                                      "output folder: projects/somefolder",tags$br(),
-                                                      "Time elapsed: 1 minute"),
+                                                      "input files: ",stepconf["niFiles",], tags$br(),
+                                                      "output files: ",stepconf["noFiles",], tags$br(),
+                                                      "output folder: ",oufolder, tags$br(),
+                                                      "Time elapsed: "),stepconf["timeElpased",],
                                              tags$br(),tags$br(),
                                                actionBttn( inputId = ns(paste0(x$stepID,"_tabBtn")),
                                                            label = "Dive into", style = "jelly",
-                                                           color = "primary", icon = icon("chart-pie")
+                                                           color = "primary", icon = icon("search")
                                                )
 
                                       )
-                                  )
-                                  
-                                  )
+                                  ))
                       )     
             })
           )
-        ),
-        tabItem(tabName = "projectReport",
+        )
+      ######################## Independent step tabs  ############################################
+      for(x in getAnalysisSteps(pipelines[[analysisType()]])){
+        tabitems[[paste0("step_",x$stepID)]]<-x$tabcontent
+          
+      }
+
+      lapply(getAnalysisSteps(pipelines[[analysisType()]]), function(x){
+        input[[paste0(x$stepID,"_tabBtn")]]
+      })
+      
+        ########################################################################################
+      tabitems[["preport"]]<-tabItem(tabName = "projectReport",
                 fluidRow(column(width = 4,
                      gradientBox(title = "Report summary", width = 12, icon = 'fa fa-file-invoice',
                         gradientColor = "blue",  boxToolSize = "xs",
@@ -145,7 +182,10 @@ tabContentModule<-function(input, output, session) {
                   )
                 )
         )
-      )
+      
+      tabitems<-unname(tabitems)
+      do.call(tabItems, tabitems)
+      
     }else{
       tabItem( #fist tab - static
         tabName = "Welcome",
@@ -162,5 +202,16 @@ tabContentModule<-function(input, output, session) {
     }
   })
   
+
+ observeEvent(eventExpr = input$qc_tabBtn,
+              handlerExpr = {
+        if(input$qc_tabBtn=="")return()
+   
+        updateTabItems(session, ns("mainMenu"), "step_qc")
+ },ignoreNULL = T)
+
+
+
+
 
 }
