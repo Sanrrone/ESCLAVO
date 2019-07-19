@@ -1,4 +1,14 @@
-tabContentModule<-function(input, output, session) {
+source("Modules/startProject_ui.R")
+source("Modules/openProject_ui.R")
+source("Modules/changeProjectDir_ui.R")
+source("Modules/news_ui.R")
+
+callTabContent<-function(id){
+  ns<-NS(id)
+  uiOutput(ns("tabContentUI"))
+}
+
+tabContentModule<-function(input, output, session, parentSession) {
   ns <- session$ns
   tabButtonLinks<-reactive("")
   
@@ -96,15 +106,11 @@ tabContentModule<-function(input, output, session) {
         )
       ######################## Independent step tabs  ############################################
       for(x in getAnalysisSteps(pipelines[[analysisType()]])){
-        tabitems[[paste0("step_",x$stepID)]]<-x$tabcontent
-          
+        #tabitems[[paste0("step_",x$stepID)]]<-x$tabcontent
       }
-
-      lapply(getAnalysisSteps(pipelines[[analysisType()]]), function(x){
-        input[[paste0(x$stepID,"_tabBtn")]]
-      })
+      tabitems[["step_rbqc"]]<-statusbUIm("statusbmodule","step_rbqc")
       
-        ########################################################################################
+      ########################################################################################
       tabitems[["preport"]]<-tabItem(tabName = "projectReport",
                 fluidRow(column(width = 4,
                      gradientBox(title = "Report summary", width = 12, icon = 'fa fa-file-invoice',
@@ -203,12 +209,22 @@ tabContentModule<-function(input, output, session) {
   })
   
 
- observeEvent(eventExpr = input$qc_tabBtn,
-              handlerExpr = {
-        if(input$qc_tabBtn=="")return()
-   
-        updateTabItems(session, ns("mainMenu"), "step_qc")
- },ignoreNULL = T)
+observe({
+  if(projectName()=="")return()
+  
+  lapply(getAnalysisSteps(pipelines[[analysisType()]]), function(x){
+    observeEvent(input[[paste0(x$stepID,"_tabBtn")]],{
+      
+        updateTabItems(session = parentSession, inputId =  "mainMenu",selected =  paste0("step_",x$stepID))
+        
+      },ignoreNULL = T,ignoreInit = T)
+
+  })
+  
+  #lapply(getAnalysisSteps(pipelines[[analysisType()]]),function(x){
+    callModule(statusbTabModule,"statusbmodule","0-raw","rbqc")
+  #})
+})
 
 
 

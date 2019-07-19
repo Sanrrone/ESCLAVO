@@ -3,17 +3,20 @@ library(shinyDirectoryInput) #devtools::install_github('wleepang/shiny-directory
 library(shinyWidgets)
 library(shinydashboard)
 library(shinydashboardPlus)
-library(dashboardthemes) #install_github("nik01010/dashboardthemes")
+#library(dashboardthemes) #install_github("nik01010/dashboardthemes")
 library(base64enc)
 library(filesstrings)
 #library(jsonlite)
-source("Modules/themes_modules.R")
+#source("Modules/themes_modules.R")
 source("Classes/generic_pipeline_structure.R")
 source("Modules/functions.R")
-source("Modules/header_ui.R")
+source("Modules/header_module.R")
 source("Modules/rsidebar_ui.R")
-source("Modules/callTabDef_ui.R")
-source("Modules/callTabContent_ui.R")
+source("Modules/analysisAvails_module.R")
+source("Modules/callTabDef_module.R")
+source("Modules/callTabContent_module.R")
+source("Modules/analysisAvails_module.R")
+
 
 
 #analysisAvail=c("16s18sits"=1,"rnaseq"=2,"metagenomic"=3,"gbs"=4)
@@ -24,7 +27,7 @@ dashboardPagePlus(
   #"blue", "blue-light", "black", "black-light", "purple", "purple-light", 
   #"green", "green-light", "red", "red-light", "yellow", "yellow-light"
   skin = "red-light",
-  header = headerUIm("headerUImodule"),
+  header = headerUIm("headermodule"),
   sidebar = dashboardSidebar(
     callTabDefUIm("tabdefmodule")
   ),

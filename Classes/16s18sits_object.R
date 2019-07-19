@@ -1,4 +1,6 @@
 source("Classes/16s18sits_tabcontent.R")
+source("Classes/16s18sits_module.R")
+
 getpipeline<-function(){
   new("pipeline",
       id = "16s18sits",
@@ -13,7 +15,7 @@ getpipeline<-function(){
                        stepID="rbqc",
                        icon = icon("stream"),
                        iconHTML='fa fa-stream',
-                       tabcontent=statusbTab("step_rbqc")),
+                       tabcontent=statusbUIm("statusbmodule","step_rbqc")),
         qc = list(folder="1-qc",
                   software="Prinseq",
                   version="0.0.0",
