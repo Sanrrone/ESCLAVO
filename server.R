@@ -2,7 +2,7 @@ source("Modules/rsidebar_server.R")
 source("Modules/startProject_server.R")
 
 function(input, output, session) {
-
+  
   #callModule(module = serverChangeTheme, id = "moduleChangeTheme")
   callModule(headerModule,"headermodule")
   callModule(rsidebarModule,"rsidebarmodule")
@@ -12,5 +12,17 @@ function(input, output, session) {
   #callModule(openProjectModule,"openProjectmodule")
   #callModule(changeProjectDirModule,"changeProjectDirmodule")
   callModule(tabContentModule,"tabcontmodule",session)
+  
+  #call Step pipelines modules
+  observe({
+    if(projectName()!=""){
+      for(x in getAnalysisSteps(pipelines[[analysisType()]])){
+        mVector<-x$tabcontentSrv
+        callModule(module = mVector$server,id = mVector$id,
+                   x$folder,x$stepID)
+        
+      }
+    }
+  })
 
 }

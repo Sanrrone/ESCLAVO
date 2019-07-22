@@ -9,6 +9,7 @@ callTabContent<-function(id){
 }
 
 tabContentModule<-function(input, output, session, parentSession) {
+  
   ns <- session$ns
   tabButtonLinks<-reactive("")
   
@@ -106,10 +107,10 @@ tabContentModule<-function(input, output, session, parentSession) {
         )
       ######################## Independent step tabs  ############################################
       for(x in getAnalysisSteps(pipelines[[analysisType()]])){
-        #tabitems[[paste0("step_",x$stepID)]]<-x$tabcontent
+        tabitems[[paste0("step_",x$stepID)]]<-x$tabcontentUI
+        
       }
-      tabitems[["step_rbqc"]]<-statusbUIm("statusbmodule","step_rbqc")
-      
+      #tabitems[["step_rbqc"]]<-x$tabcontentUI
       ########################################################################################
       tabitems[["preport"]]<-tabItem(tabName = "projectReport",
                 fluidRow(column(width = 4,
@@ -209,25 +210,21 @@ tabContentModule<-function(input, output, session, parentSession) {
   })
   
 
-observe({
-  if(projectName()=="")return()
-  
-  lapply(getAnalysisSteps(pipelines[[analysisType()]]), function(x){
-    observeEvent(input[[paste0(x$stepID,"_tabBtn")]],{
-      
-        updateTabItems(session = parentSession, inputId =  "mainMenu",selected =  paste0("step_",x$stepID))
+  observe({
+    if(projectName()=="")return()
+    
+    lapply(getAnalysisSteps(pipelines[[analysisType()]]), function(x){
+      observeEvent(input[[paste0(x$stepID,"_tabBtn")]],{
         
-      },ignoreNULL = T,ignoreInit = T)
+          updateTabItems(session = parentSession, inputId =  "mainMenu",selected =  paste0("step_",x$stepID))
+          
+        },ignoreNULL = T,ignoreInit = T)
+  
+    })
+
+    
 
   })
-  
-  #lapply(getAnalysisSteps(pipelines[[analysisType()]]),function(x){
-    callModule(statusbTabModule,"statusbmodule","0-raw","rbqc")
-  #})
-})
-
-
-
 
 
 }

@@ -1,15 +1,30 @@
-statusbUIm<-function(id, stepTabName){
+statusbUIm<-function(id, stepTabName,folder, soft, sversion, spath){
   ns<-NS(id)
 
   tabItem(tabName = stepTabName,
-          fluidRow(column(width = 6,
+          fluidRow(column(width = 4,
                           gradientBox(title = "Input files", width = 12, icon = 'fa fa-stream',
                                       gradientColor = "purple",  boxToolSize = "xs",
                                       footer = dataTableOutput(ns("rbqcTable"))
                                       
                           )
                     ),
-                    column(width = 6,
+                   column(width = 4,
+                          gradientBox(title = "Software details", width = 12, icon = 'fa fa-scroll',
+                                      gradientColor = "purple",  boxToolSize = "xs",
+                                      footer = fluidRow(column(width = 12,
+                                                               tags$p(
+                                                                paste0(soft," v",sversion),
+                                                                tags$br(),
+                                                                paste0("Work folder: ",folder),
+                                                                tags$br(),
+                                                                paste0("Location: ",spath)
+                                                               )
+                                                        )
+                                                )
+                                      )
+                   ),
+                   column(width = 4,
                            gradientBox(title = "Reads before QC", width = 12, icon = 'fa fa-stream',
                                        gradientColor = "purple",  boxToolSize = "xs",
                                        footer = fluidRow(
@@ -27,13 +42,13 @@ statusbUIm<-function(id, stepTabName){
 }
 
 statusbTabModule<-function(input,output,session, folder, stepID){
-  ns<-session$ns
+  ns <- session$ns
   
   observe({
     if(projectName()=="")return()
     if(!file.exists(paste0(folder,"/",stepID,".conf"))){
       stepStatus<-"not-performed"
-      stepconf<-data.frame()
+      stepconf<-data.frame(inputFiles=list.files(folder,pattern = ".fastq"),multiqcFile=NULL)
       oufolder<-""
     }else{
       stepconf<-read.table(paste0(folder,"/",stepID,".conf"),
@@ -41,8 +56,7 @@ statusbTabModule<-function(input,output,session, folder, stepID){
                            stringsAsFactors = F)
       stepStatus<-stepconf["statusStep"]
       oufolder<-paste0(projectName(),"/",folder)
-      print(paste0("variables: ",folder," and ",stepID, " and ", oufolder))
-      
+
     }
     
     output$statusbUI<-renderUI({
@@ -70,16 +84,23 @@ statusbTabModule<-function(input,output,session, folder, stepID){
     })
     
     output$readReportSampleUI<-renderUI({
-      nsamples<-nrow(stepconf)
-      if(nsamples==0)return()
-      lapply(1:nsamples, function(i){
-        gradientBox(title = paste0(stepconf[i,"sample"]," read status"), width = 12, icon = 'fa fa-stream',
+      nsamples<-length(stepconf$multiqcFile)
+      if(nsamples==0){
+        gradientBox(title = "Not read status found"," read status", width = 12, icon = 'fa fa-stream',
                     gradientColor = "purple",  boxToolSize = "xs",collapsible = T,
-                    footer = fluidRow(
-                      tags$iframe(src="http://google.cl", height=600, width="100%")
-                    )
+                    footer = fluidRow(column(width=12,tags$h5(paste0("No results are in ",folder))))
         )
-      })
+      }else{
+        lapply(1:nsamples, function(i){
+          gradientBox(title = paste0(stepconf[i,"sample"]," read status"), width = 12, icon = 'fa fa-stream',
+                      gradientColor = "purple",  boxToolSize = "xs",collapsible = T,
+                      footer = fluidRow(
+                        tags$iframe(src="http://google.cl", height=600, width="100%")
+                      )
+          )
+        })
+      }
+
       
     })
 
