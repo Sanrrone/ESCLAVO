@@ -1,3 +1,4 @@
+
 library(shiny)
 library(shinyDirectoryInput) #devtools::install_github('wleepang/shiny-directory-input')
 library(shinyWidgets)
@@ -44,6 +45,10 @@ dashboardPagePlus(
     ))),
    tags$head(tags$style(".modal-content {background: transparent;
                          box-shadow: inset 1px 2000px rgba(208, 208, 208, 0)}")),
+   tags$head(
+     tags$style(".content-wrapper { min-width: 800px !important; }")
+   ),
+
    tabItems(
     callTabContent("tabcontmodule")
    )

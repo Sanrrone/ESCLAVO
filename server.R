@@ -16,11 +16,9 @@ function(input, output, session) {
   #call Step pipelines modules
   observe({
     if(projectName()!=""){
-      for(x in getAnalysisSteps(pipelines[[analysisType()]])){
+      for(x in getAnalysisSteps(pipelines[[analysisType()]])[1]){
         mVector<-x$tabcontentSrv
-        callModule(module = mVector$server,id = mVector$id,
-                   x$folder,x$stepID)
-        
+        callModule(module = mVector$server,id = mVector$id,x$stepID)
       }
     }
   })

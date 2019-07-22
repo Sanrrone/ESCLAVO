@@ -17,7 +17,7 @@ tabContentModule<-function(input, output, session, parentSession) {
     
     if(projectName()!=""){
 
-      pconf<-read.table("projects_eConf.tsv",sep = "\t",header = T,row.names = 1,stringsAsFactors = F)
+      pconf<-read.table(paste0(projectName(),"_eConf.tsv"),sep = "\t",header = T,row.names = 1,stringsAsFactors = F)
       tabitems<-list()
       tabitems[["welcome"]]<-tabItem( #fist tab - static
             tabName = "Welcome",
@@ -106,11 +106,12 @@ tabContentModule<-function(input, output, session, parentSession) {
           )
         )
       ######################## Independent step tabs  ############################################
-      for(x in getAnalysisSteps(pipelines[[analysisType()]])){
-        tabitems[[paste0("step_",x$stepID)]]<-x$tabcontentUI
-        
+      for(x in getAnalysisSteps(pipelines[[analysisType()]])[1]){
+        tabitems[[paste0("step_",x$stepID)]]<-x$tabcontentUI$ui(x$tabcontentUI$id,
+                                                   paste0("step_",x$stepID), pconf["ffolder",],
+                                                   x$software, x$version, x$spath)
       }
-      #tabitems[["step_rbqc"]]<-x$tabcontentUI
+
       ########################################################################################
       tabitems[["preport"]]<-tabItem(tabName = "projectReport",
                 fluidRow(column(width = 4,

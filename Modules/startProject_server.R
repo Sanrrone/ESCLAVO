@@ -116,7 +116,7 @@ newProjectModule<-function(input, output, session) {
            "3" = {system(paste("mv", Fpath, paste0(Ppath,"/0-fastq")), wait = T);Fpath<-paste0(Ppath,"/0-fastq")}
     )
     setwd(Ppath)
-    aoptions<-makeProjectDescription(Fpath,Ppath,
+    aoptions<-makeProjectDescription(Ppath,Fpath,
                            input$analysisType,
                            getAnalysisVersion(pipelines[[input$analysisType]]),
                            "not-performed",0,"none")
@@ -126,6 +126,7 @@ newProjectModule<-function(input, output, session) {
     #callModule(tabDefModule,"tabdefmodule",pname,input$analysisType)
     projectName(pname)
     analysisType(input$analysisType)
+    projectConf(aoptions)
     removeModal()
 
   })

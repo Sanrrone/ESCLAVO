@@ -10,6 +10,7 @@ for(module in names(analysisAvail)){
 projectName<-reactiveVal("")
 analysisType<-reactiveVal("")
 projectsFolder="/home/sandro/Programas/ESCLAVO/projects"
+projectConf<-reactiveVal(data.frame())
 
 makeProjectDescription<-function(projectFolder,fastqFolder,analysisType, aVersion, pStatus,pPercent,lStep){
   rnames<-c("pfolder","ffolder","analysis","aversion","created","status","pPercent","lastStep")
