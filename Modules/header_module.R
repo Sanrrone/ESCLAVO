@@ -9,7 +9,7 @@ headerUIm <- function(id) {
     enable_rightsidebar = T,
     rightSidebarIcon = "gears",
     left_menu = tagList(
-      #uiOutput(ns("header_proyectName")),
+      #uiOutput(ns("header_proyectName"))
       #uiOutput(ns("header_proyectType"))
       #uiChangeThemeDropdown()
       uiOutput("fakefake")
@@ -27,7 +27,9 @@ headerModule<-function(input, output, session) {
       dropdownBlock(
         id = ns("headerPname"),
         title = projectName(),
-        icon = "sliders"
+        icon = "sliders",
+        selectInput("executeProject",label="Run type",
+                    choices = c("Local"=1,"Slurm (not available)"=2),selected = 1)
       )
     })
     

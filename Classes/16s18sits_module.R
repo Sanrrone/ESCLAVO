@@ -9,7 +9,7 @@ statusbUIm<-function(id, stepTabName,folder, soft, sversion, spath){
                           )
                     ),
                    column(width = 4,
-                          gradientBox(title = "Software details", width = 12, icon = 'fa scroll',
+                          gradientBox(title = "Software details", width = 12, icon = 'fa fa-barcode',
                                       gradientColor = "purple",  boxToolSize = "xs",
                                       footer = fluidRow(column(width = 12,
                                                     tags$strong(soft),sversion,

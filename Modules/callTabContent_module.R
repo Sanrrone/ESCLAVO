@@ -59,9 +59,14 @@ tabContentModule<-function(input, output, session, parentSession) {
                                                           color = "danger",
                                                           icon = icon("rocket")
                                                         ))
+                                                    }else if(pconf["lastStep",]=="running"){
+                                                      column(width=12,
+                                                             tags$strong("Last step: "),pconf["lastStep",],
+                                                             getDashboardLabel("running")
+                                                      )
                                                     }else{
                                                       column(width=12,
-                                                      tags$h4(pconf["lastStep",])
+                                                        tags$strong("Last step"),pconf["lastStep",]
                                                       )
                                                     }
                                              )
@@ -98,10 +103,9 @@ tabContentModule<-function(input, output, session, parentSession) {
                                                            label = "Dive into", style = "jelly",
                                                            color = "primary", icon = icon("search")
                                                )
-
                                       )
                                   ))
-                      )     
+                      )
             })
           )
         )
@@ -217,15 +221,16 @@ tabContentModule<-function(input, output, session, parentSession) {
     lapply(getAnalysisSteps(pipelines[[analysisType()]]), function(x){
       observeEvent(input[[paste0(x$stepID,"_tabBtn")]],{
         
-          updateTabItems(session = parentSession, inputId =  "mainMenu",selected =  paste0("step_",x$stepID))
+          updateTabItems(session = parentSession, inputId =  "mainMenu", selected =  paste0("step_",x$stepID))
           
         },ignoreNULL = T,ignoreInit = T)
   
     })
-
-    
-
   })
-
+  
+  #check when start pipeline is pressed
+  observeEvent(input$startPipelinebtn,{
+    system("bash pipelines/16s18sits.bash",wait = F)
+  },ignoreNULL = T, ignoreInit = T)
 
 }

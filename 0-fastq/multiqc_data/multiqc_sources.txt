@@ -1,0 +1,7 @@
+Module	Section	Sample Name	Source
+FastQC	all_sections	fakeFastq1_r1	/home/sandro/Programas/ESCLAVO/0-fastq/fakeFastq1_r1_fastqc.zip
+FastQC	all_sections	fakeFastq3_r2	/home/sandro/Programas/ESCLAVO/0-fastq/fakeFastq3_r2_fastqc.zip
+FastQC	all_sections	fakeFastq3_r1	/home/sandro/Programas/ESCLAVO/0-fastq/fakeFastq3_r1_fastqc.zip
+FastQC	all_sections	fakeFastq1_r2	/home/sandro/Programas/ESCLAVO/0-fastq/fakeFastq1_r2_fastqc.zip
+FastQC	all_sections	fakeFastq2_r1	/home/sandro/Programas/ESCLAVO/0-fastq/fakeFastq2_r1_fastqc.zip
+FastQC	all_sections	fakeFastq2_r2	/home/sandro/Programas/ESCLAVO/0-fastq/fakeFastq2_r2_fastqc.zip
