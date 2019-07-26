@@ -20,6 +20,13 @@ setMethod("getAnalysisVersion", "pipeline", function(ob) {return(ob@version)})
 setGeneric("getAnalysisSteps", function(ob) {standardGeneric("getAnalysisSteps")})
 setMethod("getAnalysisSteps", "pipeline", function(ob) {return(ob@steps)})
 
+setGeneric("setNewStepFolder", function(ob,step,newfolder) {standardGeneric("setNewStepFolder")})
+setMethod("setNewStepFolder", "pipeline", function(ob,step,newfolder) {
+  ob@steps[[step]]$folder<-newfolder
+  return(ob)
+})
+
+
 setGeneric("getAnalysisOptions", function(ob) {standardGeneric("getAnalysisOptions")})
 setMethod("getAnalysisOptions", "pipeline", function(ob) {
           accordionItem(

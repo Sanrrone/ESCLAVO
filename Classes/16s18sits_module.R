@@ -11,12 +11,13 @@ statusbUIm<-function(id, stepTabName,folder, soft, sversion, spath){
                    column(width = 4,
                           gradientBox(title = "Software details", width = 12, icon = 'fa fa-barcode',
                                       gradientColor = "purple",  boxToolSize = "xs",
-                                      footer = fluidRow(column(width = 12,
+                                      footer = fluidRow(column(width = 12,style = "overflow-x:scroll;",
                                                     tags$strong(soft),sversion,
                                                     tags$br(),
                                                     tags$strong("Work folder: "),folder,
                                                     tags$br(),
-                                                    tags$strong("Location: "),spath
+                                                    tags$strong("Location: "),spath,
+                                                    tags$br()
                                                   )
                                                 )
                                       )
@@ -44,20 +45,18 @@ statusbTabModule<-function(input,output,session, stepID){
   
   observe({
     if(projectName()=="")return()
-    folder<-projectConf()["ffolder",]
-    if(!file.exists(paste0(folder,"/",stepID,".conf"))){
+    ffolder<-projectConf()["ffolder",]
+    pattern<-projectConf()["fqpattern",]
+    if(!file.exists(paste0(ffolder,"/",stepID,".conf"))){
       stepStatus<-"not-performed"
-      stepconf<-data.frame(inputFiles=list.files(folder,pattern = ".fastq"),
-                           multiqcFile=NA,
+      stepconf<-data.frame(inputFiles=list.files(ffolder,pattern = pattern),
+                           qcFile=NA,
                            stringsAsFactors = F)
-      oufolder<-""
     }else{
-      stepconf<-read.table(paste0(folder,"/",stepID,".conf"),
-                           sep = "\t", header = T, row.names = 1,
+      stepconf<-read.table(paste0(ffolder,"/",stepID,".conf"),
+                           sep = "\t", header = T,
                            stringsAsFactors = F)
-      stepStatus<-stepconf["statusStep"]
-      oufolder<-paste0(projectName(),"/",folder)
-
+      stepStatus<-unique(stepconf[,"stepStatus"])
     }
     
     output$statusbUI<-renderUI({
@@ -72,43 +71,37 @@ statusbTabModule<-function(input,output,session, stepID){
                  color = "danger",
                  icon = icon("rocket")
                ))
+      }else if (stepStatus=="done"){
+        getDashboardLabel(stepStatus)
       }else{
         column(width=12,
-               tags$h4(pconf["lastStep",])
+               tags$h4(projectConf()["lastStep",])
         )
       }
     })
     
     output$rbqcTable<-renderDataTable({
-      return(stepconf)
+      datatable(stepconf,options = list(scrollX=TRUE, scrollCollapse=TRUE))
     })
     
     output$readReportSampleUI<-renderUI({
-      nsamples<-length(stepconf$multiqcFile)
-      samplesInFolder<-length(stepconf$sample)
+      nsamples<-length(stepconf$qcFile)
+      samplesInFolder<-length(stepconf$inputFiles)
       if(nsamples==0 | samplesInFolder == 0){
         gradientBox(title = "Not read status found"," read status", width = 12, icon = 'fa fa-stream',
                     gradientColor = "purple",  boxToolSize = "xs",collapsible = T,
                     footer = fluidRow(column(width=12,tags$h5(paste0("No results are in ",folder))))
         )
       }else{
-        
-        box(title = paste0(stepconf[1,"sample"]," read status"), width = 12, icon = 'fa fa-stream',
-                      gradientColor = "purple",  boxToolSize = "xs",collapsible = T,
-                      footer = fluidRow(
-                        tags$iframe(src="http://google.cl", height=600, width="100%")
-                      )
+        addResourcePath("ffolder",ffolder) #add fastq folder to allow iframe load the local html file
+        box(title = "Read status report", width = 12, icon = 'fa fa-stream',
+            gradientColor = "purple",  boxToolSize = "xs", collapsible = T,
+            footer = fluidRow(column(width = 12,
+              tags$iframe(seamless = "seamless",
+                          src=paste0("ffolder/multiqc_report.html"),
+                          height=600, width="100%",frameborder=0)
+            ))
         )
-        if(nsamples>=2){
-          lapply(2:nsamples, function(i){
-            box(title = paste0(stepconf[i,"sample"]," read status"), width = 12, icon = 'fa fa-stream',
-                        status = "info", collapsible = T,collapsed=T,
-                        footer = fluidRow(
-                          tags$iframe(src="http://google.cl", height=600, width="100%")
-                        )
-            )
-          })
-        }
 
       }
 

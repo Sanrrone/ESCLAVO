@@ -1,5 +1,3 @@
-source("Modules/startProject_ui.R")
-source("Modules/openProject_ui.R")
 source("Modules/changeProjectDir_ui.R")
 source("Modules/news_ui.R")
 
@@ -16,9 +14,10 @@ tabContentModule<-function(input, output, session, parentSession) {
   output$tabContentUI <- renderUI({
     
     if(projectName()!=""){
-
-      pconf<-read.table(paste0(projectName(),"_eConf.tsv"),sep = "\t",header = T,row.names = 1,stringsAsFactors = F)
+      pipelines[[analysisType()]]<-setNewStepFolder(pipelines[[analysisType()]],1,projectConf()["ffolder",])
+      pconf<-projectConf()
       tabitems<-list()
+      
       tabitems[["welcome"]]<-tabItem( #fist tab - static
             tabName = "Welcome",
             fluidRow(
@@ -59,14 +58,9 @@ tabContentModule<-function(input, output, session, parentSession) {
                                                           color = "danger",
                                                           icon = icon("rocket")
                                                         ))
-                                                    }else if(pconf["lastStep",]=="running"){
-                                                      column(width=12,
-                                                             tags$strong("Last step: "),pconf["lastStep",],
-                                                             getDashboardLabel("running")
-                                                      )
                                                     }else{
                                                       column(width=12,
-                                                        tags$strong("Last step"),pconf["lastStep",]
+                                                        tags$strong("Last step: "),pconf["lastStep",]
                                                       )
                                                     }
                                              )
@@ -77,16 +71,17 @@ tabContentModule<-function(input, output, session, parentSession) {
           ),
           fluidRow(
             lapply(getAnalysisSteps(pipelines[[analysisType()]]),function(x){
-                    if(!file.exists(paste0(x$folder,"/",x$stepID,".conf"))){
+                    confFileName<-paste0(x$folder,"/",x$stepID,".conf")
+                    if(!file.exists(confFileName)){
                       dashblabel<-"not-performed"
-                      stepconf<-data.frame()
-                      oufolder<-""
+                      stepconf<-data.frame(inputFiles=list.files(x$folder,pconf["fqpattern",]),
+                                           timeElpased=rep("0:0:0",length(list.files(x$folder,pconf["fqpattern",])))
+                                                           ,stringsAsFactors = F)
+                      
                     }else{
-                      stepconf<-read.table(paste0(x$folder,"/",x$stepID,".conf"),
-                                           sep = "\t", header = T, row.names = 1,
-                                           stringsAsFactors = F)
-                      dashlabel<-stepconf["statusStep"]
-                      oufolder<-paste0(projectName(),"/",x$folder)
+                      stepconf<-read.table(confFileName, sep = "\t", header = T, stringsAsFactors = F)
+                      dashblabel<-unique(stepconf[,"stepStatus"])
+
                     }
                       gradientBox(title = x$stepName, width = 4, icon = x$iconHTML,
                                   gradientColor = "red",  boxToolSize = "xs",
@@ -94,10 +89,10 @@ tabContentModule<-function(input, output, session, parentSession) {
                                       column(width = 12, 
                                              fluidRow("Status: ",getDashboardLabel(dashblabel),
                                                       tags$br(),
-                                                      "input files: ",stepconf["niFiles",], tags$br(),
-                                                      "output files: ",stepconf["noFiles",], tags$br(),
-                                                      "output folder: ",oufolder, tags$br(),
-                                                      "Time elapsed: "),stepconf["timeElpased",],
+                                                      "input files: ",nrow(stepconf), tags$br(),
+                                                      "output files: ",length(list.files(x$folder))-nrow(stepconf), tags$br(),
+                                                      "output folder: ",x$folder, tags$br(),
+                                                      "Time elapsed: ",parseTimes(stepconf[,"timeElpased"],"minutes")),
                                              tags$br(),tags$br(),
                                                actionBttn( inputId = ns(paste0(x$stepID,"_tabBtn")),
                                                            label = "Dive into", style = "jelly",
@@ -230,7 +225,14 @@ tabContentModule<-function(input, output, session, parentSession) {
   
   #check when start pipeline is pressed
   observeEvent(input$startPipelinebtn,{
-    system("bash pipelines/16s18sits.bash",wait = F)
+    setwd(esclavoHome)
+    pfolder<-projectConf()["pfolder",]
+    folder<-projectConf()["ffolder",]
+    fqpattern<-projectConf()["fqpattern",]
+    analysis<-projectConf()["analysis",]#same name for files
+    system2(command = "bash",args = paste0("pipelines/",analysis,".sh --force -p ",pfolder," -f ",folder," -pt ",fqpattern),wait = F)
+    
+    
   },ignoreNULL = T, ignoreInit = T)
 
 }

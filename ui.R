@@ -1,4 +1,4 @@
-
+rm(list = ls())
 library(shiny)
 library(shinyDirectoryInput) #devtools::install_github('wleepang/shiny-directory-input')
 library(shinyWidgets)
@@ -7,6 +7,7 @@ library(shinydashboardPlus)
 #library(dashboardthemes) #install_github("nik01010/dashboardthemes")
 library(base64enc)
 library(filesstrings)
+library(DT)
 #library(jsonlite)
 #source("Modules/themes_modules.R")
 source("Classes/generic_pipeline_structure.R")

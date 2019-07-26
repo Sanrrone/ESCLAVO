@@ -1,9 +1,10 @@
 value
 pfolder	/home/sandro/Programas/ESCLAVO/projects
 ffolder	/home/sandro/Programas/ESCLAVO/0-fastq
+fqpattern	.fastq.gz
 analysis	16s18sits
 aversion	1
-created	18099
+created	18103
 status	not-performed
-pPercent	0
-lastStep	none
+pPercent	25
+lastStep	Read status before QC

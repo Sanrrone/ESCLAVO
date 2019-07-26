@@ -1,7 +1,7 @@
 Sample	adapter_content	Sequences flagged as poor quality	sequence_duplication_levels	avg_sequence_length	Encoding	per_base_sequence_quality	sequence_length_distribution	Sequence length	File type	basic_statistics	per_sequence_gc_content	Total Sequences	per_base_n_content	per_base_sequence_content	overrepresented_sequences	%GC	total_deduplicated_percentage	Filename	per_tile_sequence_quality	per_sequence_quality_scores
-fakeFastq1_r1	warn	0.0	pass	76.0	Sanger / Illumina 1.9	fail	pass	76.0	Conventional base calls	pass	warn	10000.0	pass	warn	warn	46.0	99.16	fakeFastq1_r1.fastq.gz	pass	pass
-fakeFastq1_r2	warn	0.0	pass	76.0	Sanger / Illumina 1.9	pass	pass	76.0	Conventional base calls	pass	pass	10000.0	warn	pass	pass	45.0	99.97	fakeFastq1_r2.fastq.gz	pass	pass
-fakeFastq2_r1	warn	0.0	pass	76.0	Sanger / Illumina 1.9	fail	pass	76.0	Conventional base calls	pass	warn	10000.0	pass	warn	warn	46.0	99.16	fakeFastq2_r1.fastq.gz	pass	pass
-fakeFastq2_r2	warn	0.0	pass	76.0	Sanger / Illumina 1.9	pass	pass	76.0	Conventional base calls	pass	pass	10000.0	warn	pass	pass	45.0	99.97	fakeFastq2_r2.fastq.gz	pass	pass
-fakeFastq3_r1	warn	0.0	pass	76.0	Sanger / Illumina 1.9	fail	pass	76.0	Conventional base calls	pass	warn	10000.0	pass	warn	warn	46.0	99.16	fakeFastq3_r1.fastq.gz	pass	pass
-fakeFastq3_r2	warn	0.0	pass	76.0	Sanger / Illumina 1.9	pass	pass	76.0	Conventional base calls	pass	pass	10000.0	warn	pass	pass	45.0	99.97	fakeFastq3_r2.fastq.gz	pass	pass
+GM1575-1_r1	pass	0.0	pass	145.89125	Sanger / Illumina 1.9	pass	warn	35-151	Conventional base calls	pass	warn	200000.0	pass	fail	pass	50.0	91.5191288717	GM1575-1_r1.fastq.gz	pass	pass
+GM1575-1_r2	pass	0.0	pass	145.87986	Sanger / Illumina 1.9	pass	warn	35-151	Conventional base calls	pass	warn	200000.0	pass	warn	pass	50.0	92.1122854248	GM1575-1_r2.fastq.gz	pass	pass
+GM1575-2_r1	pass	0.0	pass	145.15835	Sanger / Illumina 1.9	pass	warn	35-151	Conventional base calls	pass	warn	200000.0	pass	fail	pass	50.0	89.503588274	GM1575-2_r1.fastq.gz	pass	pass
+GM1575-2_r2	pass	0.0	pass	145.14766	Sanger / Illumina 1.9	pass	warn	35-151	Conventional base calls	pass	warn	200000.0	pass	warn	pass	50.0	90.2222667702	GM1575-2_r2.fastq.gz	pass	pass
+GM1575-3_r1	pass	0.0	pass	144.64168	Sanger / Illumina 1.9	pass	warn	35-151	Conventional base calls	pass	warn	200000.0	pass	fail	pass	49.0	87.1979649522	GM1575-3_r1.fastq.gz	pass	pass
+GM1575-3_r2	pass	0.0	pass	144.606965	Sanger / Illumina 1.9	pass	warn	35-151	Conventional base calls	pass	pass	200000.0	pass	warn	pass	49.0	91.4091834791	GM1575-3_r2.fastq.gz	pass	pass

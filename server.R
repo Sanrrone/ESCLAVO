@@ -1,5 +1,6 @@
 source("Modules/rsidebar_server.R")
-source("Modules/startProject_server.R")
+source("Modules/startProject_module.R")
+source("Modules/openProject_module.R")
 
 function(input, output, session) {
   
@@ -9,7 +10,7 @@ function(input, output, session) {
   callModule(tabDefModule,"tabdefmodule")
   callModule(analysisAvailsModule,"analysisavails")
   callModule(newProjectModule,"startProjectmodule")
-  #callModule(openProjectModule,"openProjectmodule")
+  callModule(openProjectModule,"openProjectmodule")
   #callModule(changeProjectDirModule,"changeProjectDirmodule")
   callModule(tabContentModule,"tabcontmodule",session)
   
