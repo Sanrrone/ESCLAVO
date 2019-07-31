@@ -8,6 +8,8 @@ library(shinydashboardPlus)
 library(base64enc)
 library(filesstrings)
 library(DT)
+library(digest)
+
 #library(jsonlite)
 #source("Modules/themes_modules.R")
 source("Classes/generic_pipeline_structure.R")

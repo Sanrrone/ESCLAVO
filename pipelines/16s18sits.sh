@@ -6,14 +6,17 @@ if [ -f ~/.bashrc ]; then source ~/.bashrc; fi
 if [ -f ~/.bash_alias ]; then source ~/.bash_alias; fi
 
 set -e
-
+ulimit -s
 
 #usage: bash 16s18sits.sh 0-raw fastq.gz
 #software requirements
-# FASTQC (better download and create alias), MULTIQC, DADA2
+# FASTQC (better download and create alias), MULTIQC, DADA2 (r), DECIPHER (r), silvaDB Rdata for decipher (http://www2.decipher.codes/Downloads.html) 
 
 function statusb {
 	set -e
+
+	echo "ESCLAVO: status before begin"
+
 	FORCE=$1
 	PCONF=$2
 	
@@ -55,18 +58,27 @@ function statusb {
 		echo "ESCLAVO: Updating config file: $PCONF"
 		sed -i "s/running/done/g" rbqc.conf
 		sed -i "s/pPercent.*/pPercent\t25/g" $PCONF
+		sed -i "s/status.*/status\topen/g" $PCONF
 		sed -i "s/lastStep.*/lastStep\tRead status before QC/g" $PCONF
 	fi
+
+	echo "ESCLAVO: status before end"
+
 
 }
 
 function qc {
 	set -e
-	echo "ESCLAVO: QC step"
+	echo "ESCLAVO: QC begin"
 	if [ ! -d 1-qc ];then
 		mkdir 1-qc
 	fi
+	
 	cd 1-qc
+
+	if [ $FORCE ];then
+		rm -rf *
+	fi
 
 	sampleR1=$(ls -1 $FASTQFOLDER/*$PATTERN | head -n1)
 	total=$(if [[ "$PATTERN" =~ "gz" ]] || [[ "$PATTERN" =~ "zip" ]]; then zcat $sampleR1 ;else cat $sampleR1 ;fi | wc -l |awk '{print int($1/4)}') #get total fastq sequences
@@ -74,22 +86,22 @@ function qc {
 	nfiles=$(ls -1 $FASTQFOLDER/*${PATTERN} |wc -l |awk '{print $1}')
 
 	echo "timeElpased" > tmp0
-	echo $nfiles |awk '{for(i=1;i<=$1;i++)print "0"}' >> tmp0
+	echo $nfiles |awk '{for(i=1;i<=$1;i++)print "0:0:0"}' >> tmp0
 	echo "inputFiles" > tmp1
 	ls -1 $FASTQFOLDER/*${PATTERN} >> tmp1
 	echo "stepStatus" > tmp2
 	echo $nfiles |awk '{for(i=1;i<=$1;i++)print "running"}' >> tmp2
 	paste tmp0 tmp1 tmp2 > qc.conf && rm tmp0 tmp1 tmp2
-	
+	    
 	echo '
 	rm(list=ls())
 	library("dada2")
 	args<-commandArgs()
-	path<-args[6]
-	fqpattern<-args[7]
-	tolerance<-as.numeric(args[8])
-	readlength<-as.numeric(args[9])
-	projectfolder<-args[10]
+	path<-"$FASTQFOLDER"
+	fqpattern<-"$PATTERN"
+	tolerance<-$TOLERANCE
+	readlength<-$lengthSeq
+	projectfolder<-"$PROJECTFOLDER"
 
 	fnFs <- sort(list.files(path, pattern=paste0("1",fqpattern), full.names = TRUE))
 	fnRs <- sort(list.files(path, pattern=paste0("2",fqpattern), full.names = TRUE))
@@ -101,20 +113,51 @@ function qc {
 	names(filtRs) <- sample.names
 	readtolerance<-readlength*tolerance
 	maxeeformula<- (0.01*readlength)+(0.012589254*readtolerance)
+	print(paste0("Doing filtering at maxEE ",maxeeformula))
 	out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=(readlength-readlength*tolerance),
 	              maxN=0, maxEE=maxeeformula, truncQ=2, rm.phix=TRUE, minLen = 80,
 	              compress=TRUE, multithread=TRUE)
+	print("Done")
 	write.table(out,"qc_filt.tsv",sep="\t")
+	print("learning from errors")
 	errF <- learnErrors(filtFs, multithread=TRUE)
 	errR <- learnErrors(filtRs, multithread=TRUE)
-
+	print("Done")
 	write.table(errF,"dada2_filt_errF.tsv",sep="\t")
-	write.table(errR,"dada2_filt_errR.tsv",sep="\t") ' > dada2_filt.R
+	write.table(errR,"dada2_filt_errR.tsv",sep="\t") 
+
+	derepFs <- derepFastq(filtFs, verbose=TRUE)
+	derepRs <- derepFastq(filtRs, verbose=TRUE)
+
+	dadaFs <- dada(derepFs, err=errF, multithread=TRUE)
+	dadaRs <- dada(derepRs, err=errR, multithread=TRUE)
+
+	write.table(dadaFs,"dada2_filt_derepFs.tsv",sep="\t")
+	write.table(dadaRs,"dada2_filt_derepRs.tsv",sep="\t") 
+	print("Finally merge reads")
+	mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
+	print("Done")
+	seqtab <- makeSequenceTable(mergers)
+	#seqtab2 <- seqtab[,nchar(colnames(seqtab)) %in% seq(250,256)]) # to select specific seq length
+	seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
+	print(paste0("sequences kept after removing chimera step: ",sum(seqtab.nochim)/sum(seqtab)))
+
+	#make summary table
+	getN <- function(x) sum(getUniques(x))
+	track <- cbind(out, sapply(dadaFs, getN), sapply(dadaRs, getN), sapply(mergers, getN), rowSums(seqtab.nochim))
+	# If processing a single sample, remove the sapply calls: e.g. replace sapply(dadaFs, getN) with getN(dadaFs)
+	colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nonchim")
+	rownames(track) <- sample.names
+
+	write.table(track,"qc_summary.tsv", sep="\t")
+	write.table(seqtab.nochim, "seqtab.nochim.tsv",sep="\t")
+
+	' > dada2_filt.R
 	SECONDS=0
-	Rscript dada2_filt.R $FASTQFOLDER $PATTERN $TOLERANCE $lengthSeq $PROJECTFOLDER > dada2_filt.log
+	Rscript --vanilla dada2_filt.R > dada2_filt.log
 	duration=$SECONDS
 	echo "timeElpased" > tmp0
-	echo "$(($duration/60/60)):$(($duration/60)):$(($duration % 60))" |awk -v nfiles=$nfiles '{for(i=1;i<=nfiles;i++){print $1/nfiles}}' >> tmp0
+	echo $duration | awk -v nfiles=$nfiles -v duration=$duration '{for(i=1;i<=nfiles;i++){print $1/60/60/nfiles":"$1/60/nfiles":"($1%60)/nfiles}}' >> tmp0
 	echo "inputFiles" > tmp1
 	ls -1 $FASTQFOLDER/*${PATTERN} >> tmp1
 	echo "stepStatus" > tmp2
@@ -126,6 +169,13 @@ function qc {
 	sed -i "s/running/done/g" qc.conf
 	sed -i "s/pPercent.*/pPercent\t50/g" $PCONF
 	sed -i "s/lastStep.*/lastStep\tQC/g" $PCONF
+	export QCSEQUENCES=$(pwd | awk 'print $1"/seqtab.nochim.tsv"')
+	ehco "ESCLAVO: QC end"
+}
+
+function humanDecont {
+	echo "ESCLAVO: humanDecont begin"
+	echo "ESCLAVO: humanDecont end"
 }
 
 function statusa {
@@ -178,6 +228,46 @@ function statusa {
 
 }
 
+function assignTaxonomy {
+	##### to make new silva db for dada2 (instead of decipher)
+    #path <- "~/Desktop/Silva/Silva.nr_v132"
+    #dada2:::makeTaxonomyFasta_Silva(file.path(path, "silva.nr_v132.align"), file.path(path, "silva.nr_v132.tax"), "~/tax/silva_nr_v132_train_set.fa.gz")
+    #dada2:::makeSpeciesFasta_Silva("~/Desktop/Silva/SILVA_132_SSURef_tax_silva.fasta.gz", "~/tax/silva_species_assignment_v132.fa.gz")
+	echo "timeElpased" > tmp0
+	echo $nfiles |awk '{for(i=1;i<=$1;i++)print "0:0:0"}' >> tmp0
+	echo "inputFiles" > tmp1
+	ls -1 $FASTQFOLDER/*${PATTERN} >> tmp1
+	echo "stepStatus" > tmp2
+	echo $nfiles |awk '{for(i=1;i<=$1;i++)print "running"}' >> tmp2
+	paste tmp0 tmp1 tmp2 > qc.conf && rm tmp0 tmp1 tmp2
+
+
+	echo "ESCLAVO: assignTaxonomy begin"
+	echo "library(DECIPHER)
+	seqtab.nochim<-read.table('$QCSEQUENCES',sep='\t')
+	dna <- DNAStringSet(getSequences(seqtab.nochim)) # Create a DNAStringSet from the ASVs
+	load('$silvaDB') # CHANGE TO THE PATH OF YOUR TRAINING SET
+	ids <- IdTaxa(dna, trainingSet, strand='top', processors=NULL, verbose=FALSE) # use all processors
+	ranks <- c('domain', 'phylum', 'class', 'order', 'family', 'genus', 'species') # ranks of interest
+	# Convert the output object of class 'Taxa' to a matrix analogous to the output from assignTaxonomy
+	taxid <- t(sapply(ids, function(x) {
+	        m <- match(ranks, x$rank)
+	        taxa <- x$taxon[m]
+	        taxa[startsWith(taxa, 'unclassified_')] <- NA
+	        taxa
+	}))
+	colnames(taxid) <- ranks
+	rownames(taxid) <- getSequences(seqtab.nochim)
+
+	" > dada2_assign.R
+
+	Rscript --vanilla dada2_assign.R > dada2_assign.log
+
+
+
+	echo "ESCLAVO: assignTaxonomy end"
+}
+
 POSITIONAL=()
 while [[ $# -gt 0 ]]
 do
@@ -199,6 +289,11 @@ case $key in
     shift # past value
     ;;
     -to|--tolerance)
+    TOLERANCE="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -sdb|--silvaDB)
     TOLERANCE="$2"
     shift # past argument
     shift # past value
@@ -254,4 +349,8 @@ statusb $FORCE $PCONF
 cd $PROJECTFOLDER
 qc
 cd $PROJECTFOLDER
+humanDecont
+cd $PROJECTFOLDER
 statusa $FORCE $PCONF
+cd $PROJECTFOLDER
+#assignTaxonomy

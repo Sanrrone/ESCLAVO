@@ -138,17 +138,26 @@ newProjectModule<-function(input, output, session) {
            "3" = {system(paste("mv", Fpath, paste0(Ppath,"/0-fastq")), wait = T);Fpath<-paste0(Ppath,"/0-fastq")}
     )
     setwd(Ppath)
-    aoptions<-makeProjectDescription(Ppath,Fpath,
-                           input$analysisType,
-                           getAnalysisVersion(pipelines[[input$analysisType]]),
-                           "not-performed",0,"none")
     pname<-strsplit(Ppath,"/")[[1]]
     pname<-pname[length(pname)]
-    write.table(aoptions,paste0(pname,"_eConf.tsv"),row.names = T,quote = F,sep = "\t")
+    if(!file.exists(paste0(pname,"_eConf.tsv"))){
+      aoptions<-makeProjectDescription(Ppath,Fpath,
+                                       input$analysisType,
+                                       getAnalysisVersion(pipelines[[input$analysisType]]),
+                                       "not-performed",0,"none")
+      write.table(aoptions,paste0(pname,"_eConf.tsv"),row.names = T,quote = F,sep = "\t")
+    }
 
+    projectConf(reactivePoll(intervalMillis = 5000, session = session, 
+                             checkFunc = function(){digest(paste0(Ppath,"/",pname,"_eConf.tsv"),algo="md5",file=TRUE)},
+                             valueFunc = function(){read.csv(paste0(Ppath,"/",pname,"_eConf.tsv"),
+                                                             header = T,sep = "\t",stringsAsFactors = F)})())
     projectName(pname)
     analysisType(input$analysisType)
-    projectConf(aoptions)
+    projectConf(reactivePoll(intervalMillis = 2000, session = session, 
+                              checkFunc = function(){digest(paste0(Ppath,"/",pname,"_eConf.tsv"),algo="md5",file=TRUE)},
+                              valueFunc = function(){read.csv(paste0(Ppath,"/",pname,"_eConf.tsv"),
+                                                              header = T,sep = "\t",stringsAsFactors = F)})())
     removeModal()
 
   })

@@ -16,7 +16,7 @@ function(input, output, session) {
   
   #call Step pipelines modules
   observe({
-    if(projectName()!=""){
+    if(nrow(projectConf())!=0){
       for(x in getAnalysisSteps(pipelines[[analysisType()]])[1]){
         mVector<-x$tabcontentSrv
         callModule(module = mVector$server,id = mVector$id,x$stepID)
@@ -24,4 +24,6 @@ function(input, output, session) {
     }
   })
 
+
+  
 }

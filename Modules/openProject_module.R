@@ -57,17 +57,21 @@ openProjectModule<-function(input, output, session, parentSession) {
   
   
   observeEvent(input$openProjectbtn,{
-    ppath<- readDirectoryInput(session, 'openPfolder')
-    pname<- strsplit(ppath,"/")[[1]]
+    Ppath<- readDirectoryInput(session, 'openPfolder')
+    pname<- strsplit(Ppath,"/")[[1]]
     pname<- pname[length(pname)]
-    if(!file.exists(paste0(ppath,"/",paste0(pname,"_eConf.tsv")))){
+    if(!file.exists(paste0(Ppath,"/",paste0(pname,"_eConf.tsv")))){
       sendSweetAlert(session,title = "Warning",text = "No ESCLAVO config file found",type = "error")
       return()
     }
-    setwd(ppath)
-    aoptions<-read.csv(paste0(pname,"_eConf.tsv"),header = T,sep = "\t",stringsAsFactors = F)
-    projectConf(aoptions)
-    analysisType(aoptions["analysis",])
+    setwd(Ppath)
+    #aoptions<-read.csv(paste0(pname,"_eConf.tsv"),header = T,sep = "\t",stringsAsFactors = F)
+    projectConf(reactivePoll(intervalMillis = 5000, session = session, 
+                              checkFunc = function(){digest(paste0(Ppath,"/",pname,"_eConf.tsv"),algo="md5",file=TRUE)},
+                              valueFunc = function(){read.csv(paste0(Ppath,"/",pname,"_eConf.tsv"),
+                                                              header = T,sep = "\t",stringsAsFactors = F)})())
+    #projectConf(aoptions)
+    analysisType(projectConf()["analysis",])
     projectName(pname)
     
     removeModal()
