@@ -1,0 +1,18 @@
+[1] "Doing assigment"
+Finished processing reference fasta.[1] "Done"
+     Kingdom    Phylum               Class             Order              
+[1,] "Bacteria" "Tenericutes"        "Mollicutes"      "Mycoplasmatales"  
+[2,] "Bacteria" "Bacteroidetes"      "Bacteroidia"     "Bacteroidales"    
+[3,] "Bacteria" "Epsilonbacteraeota" "Campylobacteria" "Campylobacterales"
+[4,] "Bacteria" "Bacteroidetes"      "Bacteroidia"     "Bacteroidales"    
+[5,] "Bacteria" "Bacteroidetes"      "Bacteroidia"     "Bacteroidales"    
+[6,] "Bacteria" "Deferribacteres"    "Deferribacteres" "Deferribacterales"
+     Family               Genus                    Species       
+[1,] "Mycoplasmataceae"   "Mycoplasma"             NA            
+[2,] "Bacteroidaceae"     "Bacteroides"            "vulgatus"    
+[3,] "Helicobacteraceae"  "Helicobacter"           "typhlonius"  
+[4,] "Prevotellaceae"     "Prevotellaceae_UCG-001" NA            
+[5,] "Bacteroidaceae"     "Bacteroides"            "acidifaciens"
+[6,] "Deferribacteraceae" "Mucispirillum"          "schaedleri"  
+null device 
+          1 

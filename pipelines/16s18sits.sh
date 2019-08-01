@@ -10,7 +10,7 @@ ulimit -s
 
 #usage: bash 16s18sits.sh 0-raw fastq.gz
 #software requirements
-# FASTQC (better download and create alias), MULTIQC, DADA2 (r), DECIPHER (r), silvaDB Rdata for decipher (http://www2.decipher.codes/Downloads.html) 
+# FASTQC (better download and create alias), MULTIQC, DADA2 (r), silvaDB https://zenodo.org/record/1172783#.XUMZwfx7k5k
 
 function statusb {
 	set -e
@@ -147,6 +147,11 @@ function qc {
 
 	#make summary table
 	getN <- function(x) sum(getUniques(x))
+	if(length(fnFs)==1){
+	  dadaFs<-list(dadaFs)
+	  dadaRs<-list(dadaRs)
+	  mergers<-list(mergers)
+	}
 	track <- cbind(out, sapply(dadaFs, getN), sapply(dadaRs, getN), sapply(mergers, getN), rowSums(seqtab.nochim))
 	# If processing a single sample, remove the sapply calls: e.g. replace sapply(dadaFs, getN) with getN(dadaFs)
 	colnames(track) <- c('input', 'filtered', 'denoisedF', 'denoisedR', 'merged', 'nonchim')
@@ -259,36 +264,28 @@ function assignTaxonomy {
 	library(DECIPHER)
 	library(phyloseq)
 	library(Biostrings)
+	library(ggplot2)
 	
 	load('$PROJECTFOLDER/1-qc/seqtab.nochim.RData')
 	dna <- DNAStringSet(getSequences(seqtab.nochim)) # Create a DNAStringSet from the ASVs
-	taxa <- assignTaxonomy(seqtab.nochim, '$SILVA_TRAINDB', multithread=TRUE, verbose = T)
-	taxa <- addSpecies(taxa, '$SILVA_SPECIESDB')
+	print('Doing assigment')
+	taxa <- assignTaxonomy(seqtab.nochim, '$SILVATDB', multithread=TRUE, verbose = T)
+	taxa <- addSpecies(taxa, '$SILVASDB')
+	print('Done')
 	taxa.print <- taxa # Removing sequence rownames for display only
 	rownames(taxa.print) <- NULL
 	head(taxa.print)
 
-
-	samples.out <- rownames(seqtab.nochim)
-	subject <- sapply(strsplit(samples.out, 'D'), \`[\`, 1)
-	gender <- substr(subject,1,1)
-	subject <- substr(subject,2,999)
-	day <- as.integer(sapply(strsplit(samples.out, 'D'), \`[\`, 2))
-	samdf <- data.frame(Subject=subject, Gender=gender, Day=day)
-	samdf$When <- 'Early'
-	samdf$When[samdf$Day>100] <- 'Late'
-	rownames(samdf) <- samples.out
-
-	ps <- phyloseq(otu_table(seqtab.nochim, taxa_are_rows=FALSE), 
-               sample_data(samdf), 
-               tax_table(taxa))
+	ps <- phyloseq(otu_table(seqtab.nochim, taxa_are_rows=FALSE), tax_table(taxa))
 	ps <- prune_samples(sample_names(ps) != 'Mock', ps) # Remove mock sample
 
 	top20 <- names(sort(taxa_sums(ps), decreasing=TRUE))[1:20]
 	ps.top20 <- transform_sample_counts(ps, function(OTU) OTU/sum(OTU))
 	ps.top20 <- prune_taxa(top20, ps.top20)
-
-	pdf('test.pdf', width=10, height=10)
+  	wformula=4 + length(sample_names(ps))*2.5
+  	hformula=10
+	pdf('sampleTaxComposition.pdf', width=wformula, height=hformula)
+	plot_bar(ps.top20, x='Sample', fill='Genus') + theme_minimal()
 	plot_bar(ps.top20, x='Sample', fill='Family') + theme_minimal()
 	dev.off()
 
@@ -329,8 +326,13 @@ case $key in
     shift # past argument
     shift # past value
     ;;
-    -sdb|--silvaDB)
-    SILVADB="$2"
+    -stdb|--silvaTrainDB)
+    SILVATDB="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -ssdb|--silvaSpeciesAssignDB)
+    SILVASDB="$2"
     shift # past argument
     shift # past value
     ;;
@@ -383,10 +385,24 @@ fi
 
 statusb $FORCE $PCONF
 cd $PROJECTFOLDER
-qc
-cd $PROJECTFOLDER
 humanDecont
+cd $PROJECTFOLDER
+qc
 cd $PROJECTFOLDER
 statusa $FORCE $PCONF
 cd $PROJECTFOLDER
 assignTaxonomy
+
+############################################
+#         ___     _,.--.,_
+#      .-~   ~--"~-.   ._ "-.
+#     /      ./_    Y    "-. \
+#    Y       :~     !         Y
+#    lq p    |     /         .|
+# _   \. .-, l    /          |j
+#()\___) |/   \_/";          !
+# \._____.-~\  .  ~\.      ./
+#            Y_ Y_. "vr"~  T
+#            (  (    |L    j   -Art by Row
+#            [nn[nn..][nn..]
+#        ~~~~~~~~~~~~~~~~~~~~~~~

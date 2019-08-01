@@ -1,0 +1,3 @@
+Module	Section	Sample Name	Source
+FastQC	all_sections	ERR3357164_F_filt	/home/sandro/Programas/ESCLAVO/projects/1-qc/ERR3357164_F_filt_fastqc.zip
+FastQC	all_sections	ERR3357164_R_filt	/home/sandro/Programas/ESCLAVO/projects/1-qc/ERR3357164_R_filt_fastqc.zip
