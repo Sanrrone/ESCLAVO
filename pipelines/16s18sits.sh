@@ -93,66 +93,69 @@ function qc {
 	echo $nfiles |awk '{for(i=1;i<=$1;i++)print "running"}' >> tmp2
 	paste tmp0 tmp1 tmp2 > qc.conf && rm tmp0 tmp1 tmp2
 	    
-	echo '
+	echo "
 	rm(list=ls())
-	library("dada2")
-	args<-commandArgs()
-	path<-"$FASTQFOLDER"
-	fqpattern<-"$PATTERN"
+	library(dada2)
+
+	path<-'$FASTQFOLDER'
+	fqpattern<-'$PATTERN'
 	tolerance<-$TOLERANCE
 	readlength<-$lengthSeq
-	projectfolder<-"$PROJECTFOLDER"
+	projectfolder<-'$PROJECTFOLDER'
 
-	fnFs <- sort(list.files(path, pattern=paste0("1",fqpattern), full.names = TRUE))
-	fnRs <- sort(list.files(path, pattern=paste0("2",fqpattern), full.names = TRUE))
-	sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
+	fnFs <- sort(list.files(path, pattern=paste0('1',fqpattern), full.names = TRUE))
+	fnRs <- sort(list.files(path, pattern=paste0('2',fqpattern), full.names = TRUE))
+	sample.names <- sapply(strsplit(basename(fnFs), '_'), \`[\`, 1)
 	# Place filtered files in filtered/ subdirectory
-	filtFs <- file.path(projectfolder, "1-qc", paste0(sample.names, "_F_filt",fqpattern))
-	filtRs <- file.path(projectfolder, "1-qc", paste0(sample.names, "_R_filt",fqpattern))
+	filtFs <- file.path(projectfolder, '1-qc', paste0(sample.names, '_F_filt',fqpattern))
+	filtRs <- file.path(projectfolder, '1-qc', paste0(sample.names, '_R_filt',fqpattern))
 	names(filtFs) <- sample.names
 	names(filtRs) <- sample.names
 	readtolerance<-readlength*tolerance
 	maxeeformula<- (0.01*readlength)+(0.012589254*readtolerance)
-	print(paste0("Doing filtering at maxEE ",maxeeformula))
+	print(paste0('Doing filtering at maxEE ',maxeeformula))
 	out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=(readlength-readlength*tolerance),
 	              maxN=0, maxEE=maxeeformula, truncQ=2, rm.phix=TRUE, minLen = 80,
 	              compress=TRUE, multithread=TRUE)
-	print("Done")
-	write.table(out,"qc_filt.tsv",sep="\t")
-	print("learning from errors")
+	print('Done')
+	write.table(out,'qc_filt.tsv',sep='\t')
+	print('learning from errors')
 	errF <- learnErrors(filtFs, multithread=TRUE)
 	errR <- learnErrors(filtRs, multithread=TRUE)
-	print("Done")
-	write.table(errF,"dada2_filt_errF.tsv",sep="\t")
-	write.table(errR,"dada2_filt_errR.tsv",sep="\t") 
+	print('Done')
+	write.table(errF,'dada2_filt_errF.tsv',sep='\t')
+	write.table(errR,'dada2_filt_errR.tsv',sep='\t') 
 
+	print('Dereplication')
 	derepFs <- derepFastq(filtFs, verbose=TRUE)
 	derepRs <- derepFastq(filtRs, verbose=TRUE)
+	print('Done')
 
+	print('Inferring sample composition')
 	dadaFs <- dada(derepFs, err=errF, multithread=TRUE)
 	dadaRs <- dada(derepRs, err=errR, multithread=TRUE)
-
-	write.table(dadaFs,"dada2_filt_derepFs.tsv",sep="\t")
-	write.table(dadaRs,"dada2_filt_derepRs.tsv",sep="\t") 
-	print("Finally merge reads")
-	mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
-	print("Done")
+	print('done')
+	
+	print('Finally merge reads')
+	mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)	
 	seqtab <- makeSequenceTable(mergers)
+	print('Done')
+
 	#seqtab2 <- seqtab[,nchar(colnames(seqtab)) %in% seq(250,256)]) # to select specific seq length
-	seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
-	print(paste0("sequences kept after removing chimera step: ",sum(seqtab.nochim)/sum(seqtab)))
+	seqtab.nochim <- removeBimeraDenovo(seqtab, method='consensus', multithread=TRUE, verbose=TRUE)
+	print(paste0('sequences kept after removing chimera step: ',sum(seqtab.nochim)/sum(seqtab)))
 
 	#make summary table
 	getN <- function(x) sum(getUniques(x))
 	track <- cbind(out, sapply(dadaFs, getN), sapply(dadaRs, getN), sapply(mergers, getN), rowSums(seqtab.nochim))
 	# If processing a single sample, remove the sapply calls: e.g. replace sapply(dadaFs, getN) with getN(dadaFs)
-	colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nonchim")
+	colnames(track) <- c('input', 'filtered', 'denoisedF', 'denoisedR', 'merged', 'nonchim')
 	rownames(track) <- sample.names
 
-	write.table(track,"qc_summary.tsv", sep="\t")
-	write.table(seqtab.nochim, "seqtab.nochim.tsv",sep="\t")
+	write.table(track,'qc_summary.tsv', sep='\t')
+	save(seqtab.nochim,file = 'seqtab.nochim.RData')
 
-	' > dada2_filt.R
+	" > dada2_filt.R
 	SECONDS=0
 	Rscript --vanilla dada2_filt.R > dada2_filt.log
 	duration=$SECONDS
@@ -169,8 +172,8 @@ function qc {
 	sed -i "s/running/done/g" qc.conf
 	sed -i "s/pPercent.*/pPercent\t50/g" $PCONF
 	sed -i "s/lastStep.*/lastStep\tQC/g" $PCONF
-	export QCSEQUENCES=$(pwd | awk 'print $1"/seqtab.nochim.tsv"')
-	ehco "ESCLAVO: QC end"
+
+	echo "ESCLAVO: QC end"
 }
 
 function humanDecont {
@@ -233,37 +236,70 @@ function assignTaxonomy {
     #path <- "~/Desktop/Silva/Silva.nr_v132"
     #dada2:::makeTaxonomyFasta_Silva(file.path(path, "silva.nr_v132.align"), file.path(path, "silva.nr_v132.tax"), "~/tax/silva_nr_v132_train_set.fa.gz")
     #dada2:::makeSpeciesFasta_Silva("~/Desktop/Silva/SILVA_132_SSURef_tax_silva.fasta.gz", "~/tax/silva_species_assignment_v132.fa.gz")
+	
+    if [ ! -d 2-taxInsight ]; then
+    	mkdir 2-taxInsight
+    fi
+
+    cd 2-taxInsight
+
+    nfiles=$(ls -1 $FASTQFOLDER/*${PATTERN} |wc -l |awk '{print $1}')
 	echo "timeElpased" > tmp0
 	echo $nfiles |awk '{for(i=1;i<=$1;i++)print "0:0:0"}' >> tmp0
 	echo "inputFiles" > tmp1
 	ls -1 $FASTQFOLDER/*${PATTERN} >> tmp1
 	echo "stepStatus" > tmp2
 	echo $nfiles |awk '{for(i=1;i<=$1;i++)print "running"}' >> tmp2
-	paste tmp0 tmp1 tmp2 > qc.conf && rm tmp0 tmp1 tmp2
+	paste tmp0 tmp1 tmp2 > tc.conf && rm tmp0 tmp1 tmp2
 
 
 	echo "ESCLAVO: assignTaxonomy begin"
-	echo "library(DECIPHER)
-	seqtab.nochim<-read.table('$QCSEQUENCES',sep='\t')
+	echo "
+	library(dada2)
+	library(DECIPHER)
+	library(phyloseq)
+	library(Biostrings)
+	
+	load('$PROJECTFOLDER/1-qc/seqtab.nochim.RData')
 	dna <- DNAStringSet(getSequences(seqtab.nochim)) # Create a DNAStringSet from the ASVs
-	load('$silvaDB') # CHANGE TO THE PATH OF YOUR TRAINING SET
-	ids <- IdTaxa(dna, trainingSet, strand='top', processors=NULL, verbose=FALSE) # use all processors
-	ranks <- c('domain', 'phylum', 'class', 'order', 'family', 'genus', 'species') # ranks of interest
-	# Convert the output object of class 'Taxa' to a matrix analogous to the output from assignTaxonomy
-	taxid <- t(sapply(ids, function(x) {
-	        m <- match(ranks, x$rank)
-	        taxa <- x$taxon[m]
-	        taxa[startsWith(taxa, 'unclassified_')] <- NA
-	        taxa
-	}))
-	colnames(taxid) <- ranks
-	rownames(taxid) <- getSequences(seqtab.nochim)
+	taxa <- assignTaxonomy(seqtab.nochim, '$SILVA_TRAINDB', multithread=TRUE, verbose = T)
+	taxa <- addSpecies(taxa, '$SILVA_SPECIESDB')
+	taxa.print <- taxa # Removing sequence rownames for display only
+	rownames(taxa.print) <- NULL
+	head(taxa.print)
+
+
+	samples.out <- rownames(seqtab.nochim)
+	subject <- sapply(strsplit(samples.out, 'D'), \`[\`, 1)
+	gender <- substr(subject,1,1)
+	subject <- substr(subject,2,999)
+	day <- as.integer(sapply(strsplit(samples.out, 'D'), \`[\`, 2))
+	samdf <- data.frame(Subject=subject, Gender=gender, Day=day)
+	samdf$When <- 'Early'
+	samdf$When[samdf$Day>100] <- 'Late'
+	rownames(samdf) <- samples.out
+
+	ps <- phyloseq(otu_table(seqtab.nochim, taxa_are_rows=FALSE), 
+               sample_data(samdf), 
+               tax_table(taxa))
+	ps <- prune_samples(sample_names(ps) != 'Mock', ps) # Remove mock sample
+
+	top20 <- names(sort(taxa_sums(ps), decreasing=TRUE))[1:20]
+	ps.top20 <- transform_sample_counts(ps, function(OTU) OTU/sum(OTU))
+	ps.top20 <- prune_taxa(top20, ps.top20)
+
+	pdf('test.pdf', width=10, height=10)
+	plot_bar(ps.top20, x='Sample', fill='Family') + theme_minimal()
+	dev.off()
 
 	" > dada2_assign.R
 
 	Rscript --vanilla dada2_assign.R > dada2_assign.log
 
-
+	echo "ESCLAVO: Updating config file: $PCONF"
+	#sed -i "s/running/done/g" qc.conf
+	sed -i "s/pPercent.*/pPercent\t100/g" $PCONF
+	sed -i "s/lastStep.*/lastStep\tTaxonomic counts/g" $PCONF
 
 	echo "ESCLAVO: assignTaxonomy end"
 }
@@ -294,7 +330,7 @@ case $key in
     shift # past value
     ;;
     -sdb|--silvaDB)
-    TOLERANCE="$2"
+    SILVADB="$2"
     shift # past argument
     shift # past value
     ;;
@@ -331,17 +367,17 @@ cd $PROJECTFOLDER
 PNAME=$(pwd | awk -F"/" '{print $NF"_eConf.tsv"}')
 PCONF=$(pwd | awk -v pname=$PNAME '{print $0"/"pname}')
 
-if [ ! -f "$PNAME" ];then
+if [ ! -f "$PNAME" ] || [ $FORCE ]; then
 	echo "	value" > $PNAME
-	echo "pfolder $(pwd)" >> $PNAME
-	echo "ffolder $FASTQFOLDER" >> $PNAME
-	echo "fqpattern $PATTERN" >> $PNAME
-	echo "analysis 16s18sits" >> $PNAME
-	echo "aversion 1.0" >> $PNAME
-	echo "created $(date --iso-8601)" >> $PNAME
-	echo "status open" >> $PNAME
-	echo "pPercent 0" >> $PNAME
-	echo "lastStep statusb" >> $PNAME
+	echo "pfolder	$(pwd)" >> $PNAME
+	echo "ffolder	$FASTQFOLDER" >> $PNAME
+	echo "fqpattern	$PATTERN" >> $PNAME
+	echo "analysis	16s18sits" >> $PNAME
+	echo "aversion	1.0" >> $PNAME
+	echo "created	$(date --iso-8601)" >> $PNAME
+	echo "status	open" >> $PNAME
+	echo "pPercent	0" >> $PNAME
+	echo "lastStep	statusb" >> $PNAME
 fi
 
 
@@ -353,4 +389,4 @@ humanDecont
 cd $PROJECTFOLDER
 statusa $FORCE $PCONF
 cd $PROJECTFOLDER
-#assignTaxonomy
+assignTaxonomy

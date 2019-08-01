@@ -24,6 +24,5 @@ function(input, output, session) {
     }
   })
 
-
   
 }

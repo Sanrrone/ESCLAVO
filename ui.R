@@ -9,6 +9,8 @@ library(base64enc)
 library(filesstrings)
 library(DT)
 library(digest)
+library(dplyr)
+library(ggplot2)
 
 #library(jsonlite)
 #source("Modules/themes_modules.R")

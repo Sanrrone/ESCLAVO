@@ -69,7 +69,8 @@ openProjectModule<-function(input, output, session, parentSession) {
     projectConf(reactivePoll(intervalMillis = 5000, session = session, 
                               checkFunc = function(){digest(paste0(Ppath,"/",pname,"_eConf.tsv"),algo="md5",file=TRUE)},
                               valueFunc = function(){read.csv(paste0(Ppath,"/",pname,"_eConf.tsv"),
-                                                              header = T,sep = "\t",stringsAsFactors = F)})())
+                                                              header = T,sep = "\t",stringsAsFactors = F,
+                                                              row.names = 1)})())
     #projectConf(aoptions)
     analysisType(projectConf()["analysis",])
     projectName(pname)

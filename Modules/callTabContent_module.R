@@ -26,12 +26,11 @@ tabContentModule<-function(input, output, session, parentSession) {
         ),
         newsUIm("news")
       )
-      })
+     })
     }else{
+      atype<-projectConf()["analysis",]
       output$tabContentUI <- renderUI({
-        
-        pipelines[[analysisType()]]<-setNewStepFolder(pipelines[[analysisType()]],1,projectConf()["ffolder",])
-        pconf<-projectConf()
+        pipelines[[atype]]<-setNewStepFolder(pipelines[[atype]],1,projectConf()["ffolder",])
         tabitems<-list()
         
         tabitems[["welcome"]]<-tabItem( #fist tab - static
@@ -52,9 +51,10 @@ tabContentModule<-function(input, output, session, parentSession) {
                                          column(width = 6,
                                                 gradientBox(title = "Status project",width = 12, icon = 'fa fa-eye',
                                                             gradientColor = "blue", boxToolSize = "xs", 
-                                                            paste0("Progress of the project according to ",getAnalysisName(pipelines[[analysisType()]]), " pipeline."),
+                                                            paste0("Progress of the project according to ",getAnalysisName(pipelines[[atype]]), " pipeline."),
                                                             footer = fluidRow(column(width = 12,
-                                                                                     progressBar(id = ns("pb_pstatus"), value = as.numeric(pconf["pPercent",]), total = 100, status = "info", 
+                                                                                     progressBar(id = ns("pb_pstatus"), value = as.numeric(projectConf()["pPercent",]), 
+                                                                                                 total = 100, status = "info", 
                                                                                                  display_pct = TRUE, striped = TRUE, title = projectName())
                                                             ))# server
                                                             #updateProgressBar(session = session, id = "pb8", value = input$slider, total = 5000)
@@ -64,7 +64,7 @@ tabContentModule<-function(input, output, session, parentSession) {
                                                                         icon = 'fa fa-tasks', gradientColor = "blue", 
                                                                         boxToolSize = "xs",
                                                                         footer = fluidRow(
-                                                                          if(pconf["lastStep",]=="none"){
+                                                                          if(projectConf()["lastStep",]=="none"){
                                                                             column(width=12,
                                                                                    tags$h5("Project not started yet"),
                                                                                    actionBttn(
@@ -76,7 +76,7 @@ tabContentModule<-function(input, output, session, parentSession) {
                                                                                    ))
                                                                           }else{
                                                                             column(width=12,
-                                                                                   tags$strong("Last step: "),pconf["lastStep",]
+                                                                                   tags$strong("Last step: "),projectConf()["lastStep",]
                                                                             )
                                                                           }
                                                                         )
@@ -97,12 +97,12 @@ tabContentModule<-function(input, output, session, parentSession) {
                                          )
                                        ),
                                        fluidRow(
-                                         lapply(getAnalysisSteps(pipelines[[analysisType()]]),function(x){
+                                         lapply(getAnalysisSteps(pipelines[[atype]]),function(x){
                                            confFileName<-paste0(x$folder,"/",x$stepID,".conf")
                                            if(!file.exists(confFileName)){
                                              dashblabel<-"not-performed"
-                                             stepconf<-data.frame(inputFiles=list.files(x$folder,pconf["fqpattern",]),
-                                                                  timeElpased=rep("0:0:0",length(list.files(x$folder,pconf["fqpattern",])))
+                                             stepconf<-data.frame(inputFiles=list.files(x$folder,projectConf()["fqpattern",]),
+                                                                  timeElpased=rep("0:0:0",length(list.files(x$folder,projectConf()["fqpattern",])))
                                                                   ,stringsAsFactors = F)
                                              
                                            }else{
@@ -132,9 +132,9 @@ tabContentModule<-function(input, output, session, parentSession) {
                                        )
         )
         ######################## Independent step tabs  ############################################
-        for(x in getAnalysisSteps(pipelines[[analysisType()]])[1]){
+        for(x in getAnalysisSteps(pipelines[[atype]])[1]){
           tabitems[[paste0("step_",x$stepID)]]<-x$tabcontentUI$ui(x$tabcontentUI$id,
-                                                                  paste0("step_",x$stepID), pconf["ffolder",],
+                                                                  paste0("step_",x$stepID), projectConf()["ffolder",],
                                                                   x$software, x$version, x$spath)
         }
         
@@ -223,7 +223,7 @@ tabContentModule<-function(input, output, session, parentSession) {
       })
       
       
-      lapply(getAnalysisSteps(pipelines[[analysisType()]]), function(x){
+      lapply(getAnalysisSteps(pipelines[[atype]]), function(x){
         observeEvent(input[[paste0(x$stepID,"_tabBtn")]],{
           
           updateTabItems(session = parentSession, inputId =  "mainMenu", selected =  paste0("step_",x$stepID))
@@ -234,15 +234,17 @@ tabContentModule<-function(input, output, session, parentSession) {
       
       
       
-      cputop<-reactivePoll(intervalMillis = 1800, session = session,
+      cputop<-reactivePoll(intervalMillis = 2000, session = session,
                            checkFunc = function(){ digest("/proc/stat",algo="md5",file=TRUE) },
                            valueFunc = function(){ getCPUusage() })
       
       output$cpuUsageBox <- renderCachedPlot(expr = {
+        #options(warn=-1)
         ggplot(cputop(),aes(x=cpu,y=usage,fill=cpu)) + geom_bar(stat = "identity") +
-          ylim(0,100) + theme_minimal() +
+          ylim(0,110) + theme_minimal() +
           geom_text(data = cputop(), nudge_y = 10, angle = 0,
                     aes(x = cpu, y = usage, label = usage))
+        #options(warn=0)
       },cputop())
       
 

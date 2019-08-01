@@ -151,13 +151,11 @@ newProjectModule<-function(input, output, session) {
     projectConf(reactivePoll(intervalMillis = 5000, session = session, 
                              checkFunc = function(){digest(paste0(Ppath,"/",pname,"_eConf.tsv"),algo="md5",file=TRUE)},
                              valueFunc = function(){read.csv(paste0(Ppath,"/",pname,"_eConf.tsv"),
-                                                             header = T,sep = "\t",stringsAsFactors = F)})())
+                                                             header = T,sep = "\t",stringsAsFactors = F,
+                                                             row.names = 1)})())
     projectName(pname)
     analysisType(input$analysisType)
-    projectConf(reactivePoll(intervalMillis = 2000, session = session, 
-                              checkFunc = function(){digest(paste0(Ppath,"/",pname,"_eConf.tsv"),algo="md5",file=TRUE)},
-                              valueFunc = function(){read.csv(paste0(Ppath,"/",pname,"_eConf.tsv"),
-                                                              header = T,sep = "\t",stringsAsFactors = F)})())
+
     removeModal()
 
   })
