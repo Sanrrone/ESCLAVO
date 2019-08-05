@@ -10,7 +10,7 @@ for(module in names(analysisAvail)){
 esclavoHome<-getwd()
 projectName<-reactiveVal("")
 analysisType<-reactiveVal("")
-projectsFolder="/home/sandro/Programas/ESCLAVO/projects"
+projectFolder<-reactiveVal("/home/sandro/Programas/ESCLAVO/projects")
 projectConf<-reactiveVal(data.frame())
 
 ############################# set cpu usage value
@@ -18,7 +18,7 @@ cores<-as.numeric(system("nproc",wait = T,intern = T))
 con <- file("/proc/stat","r");cpuvec1 <- readLines(con,n=cores+1);close(con)
 cpudf1<-strsplit(cpuvec1," |  ") %>% bind_cols()
 colnames(cpudf1)<-cpudf1[1,]
-cpudf1<-reactiveVal(data.frame(cpudf1[-1,-1]))
+cpudf1<-data.frame(cpudf1[-1,-1])
 ##############################
 
 makeProjectDescription<-function(projectFolder,fastqFolder,analysisType, aVersion, pStatus,pPercent,lStep){
@@ -71,14 +71,14 @@ getCPUusage<-function(){
   colnames(cpudf2)<-cpudf2[1,]
   cpudf2<-data.frame(cpudf2[-1,-1])
   
-  cpudf<-lapply(colnames(cpudf1()), function(x){
-    a<-as.numeric(cpudf1()[,x])
+  cpudf<-lapply(colnames(cpudf1), function(x){
+    a<-as.numeric(cpudf1[,x])
     b<-as.numeric(cpudf2[,x])
     usage<- 100*((b[1]+b[2]+b[3]+b[5]+b[6]+b[7]) - (a[1]+a[2]+a[3]+a[5]+a[6]+a[7])) / ((b[1]+b[2]+b[3]+b[4]+b[5]+b[6]+b[7]) - (a[1]+a[2]+a[3]+a[4]+a[5]+a[6]+a[7]))
 
     data.frame(usage=round(usage,2), cpu=x,stringsAsFactors = F)
   }) %>% bind_rows()
-  cpudf1<-reactiveVal(cpudf2)
+  #cpudf1<-reactiveVal(cpudf2)
   cpudf
 }
 

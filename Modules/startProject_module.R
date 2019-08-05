@@ -25,12 +25,13 @@ newProjectModule<-function(input, output, session) {
   observeEvent(input$newprojectbtn,{
     showModal(modalDialog(size = "l",
                           easyClose = TRUE,
+                          
                           gradientBox(title = "New Project", gradientColor = "red",
                                       closable = F, icon = "fa fa-project-diagram",
-                                      width = 12,footer = fluidRow(column(width = 12,
+                                      width = 12, footer = fluidRow(column(width = 12,
                                         directoryInput(inputId = ns('newProjectFolder'), 
                                                        label = 'Project folder (name)',
-                                                       value = projectsFolder),
+                                                       value = projectFolder()),
                                         directoryInput(inputId = ns('newProjectFastq'), 
                                                        label = 'Where are the Project fastq files?'),
                                         uiOutput(ns("fastqOptions")),
@@ -140,24 +141,20 @@ newProjectModule<-function(input, output, session) {
     setwd(Ppath)
     pname<-strsplit(Ppath,"/")[[1]]
     pname<-pname[length(pname)]
-    if(!file.exists(paste0(pname,"_eConf.tsv"))){
+    #if(!file.exists(paste0(pname,"_eConf.tsv"))){
       aoptions<-makeProjectDescription(Ppath,Fpath,
                                        input$analysisType,
                                        getAnalysisVersion(pipelines[[input$analysisType]]),
                                        "not-performed",0,"none")
       write.table(aoptions,paste0(pname,"_eConf.tsv"),row.names = T,quote = F,sep = "\t")
-    }
+    #}
 
-    projectConf(reactivePoll(intervalMillis = 5000, session = session, 
-                             checkFunc = function(){digest(paste0(Ppath,"/",pname,"_eConf.tsv"),algo="md5",file=TRUE)},
-                             valueFunc = function(){read.csv(paste0(Ppath,"/",pname,"_eConf.tsv"),
-                                                             header = T,sep = "\t",stringsAsFactors = F,
-                                                             row.names = 1)})())
     projectName(pname)
+    projectFolder(Ppath)
     analysisType(input$analysisType)
 
     removeModal()
 
-  })
+  },ignoreNULL = T, ignoreInit = T)
 
 }

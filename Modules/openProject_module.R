@@ -23,7 +23,7 @@ openProjectModule<-function(input, output, session, parentSession) {
                                       width = 12,footer = fluidRow(column(width = 12,
                                                                           directoryInput(inputId = ns('openPfolder'), 
                                                                                          label = 'Project folder where eConf file is',
-                                                                                         value = projectsFolder),
+                                                                                         value = projectsFolder()),
                                                                           tags$br(),
                                                                           fluidRow(column(width = 2),
                                                                             column(width = 3,                  
@@ -65,14 +65,10 @@ openProjectModule<-function(input, output, session, parentSession) {
       return()
     }
     setwd(Ppath)
-    #aoptions<-read.csv(paste0(pname,"_eConf.tsv"),header = T,sep = "\t",stringsAsFactors = F)
-    projectConf(reactivePoll(intervalMillis = 5000, session = session, 
-                              checkFunc = function(){digest(paste0(Ppath,"/",pname,"_eConf.tsv"),algo="md5",file=TRUE)},
-                              valueFunc = function(){read.csv(paste0(Ppath,"/",pname,"_eConf.tsv"),
-                                                              header = T,sep = "\t",stringsAsFactors = F,
-                                                              row.names = 1)})())
-    #projectConf(aoptions)
+    aoptions<-read.csv(paste0(pname,"_eConf.tsv"),header = T,sep = "\t",stringsAsFactors = F)
+    projectConf(aoptions)
     analysisType(projectConf()["analysis",])
+    projectFolder(Ppath)
     projectName(pname)
     
     removeModal()

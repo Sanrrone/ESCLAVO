@@ -1,3 +1,0 @@
-Module	Section	Sample Name	Source
-FastQC	all_sections	ERR3357164_2	/home/sandro/Programas/ESCLAVO/0-fastq16s/ERR3357164_2_fastqc.zip
-FastQC	all_sections	ERR3357164_1	/home/sandro/Programas/ESCLAVO/0-fastq16s/ERR3357164_1_fastqc.zip
