@@ -14,7 +14,7 @@ source $ESCLAVOHOME/modules/qc.sh
 source $ESCLAVOHOME/modules/statusa.sh
 source $ESCLAVOHOME/modules/assignTaxonomy.sh
 
-#usage: bash 16s18sits.sh --force -p /home/sandro/Programas/ESCLAVO/projects -f /home/sandro/Programas/ESCLAVO/0-fastq16s -pt .fastq.gz
+#usage: bash 16s18sits.sh --force -p /home/sandro/Programas/ESCLAVO/projects -f /home/sandro/Programas/ESCLAVO/0-raw -pt .fastq.gz
 #software requirements
 # FASTQC (better download and create alias), MULTIQC, DADA2 (r), silvaDB https://zenodo.org/record/1172783#.XUMZwfx7k5k
 
@@ -59,7 +59,7 @@ case $key in
     ;;
     -h|--help)
     echo "usage: bash 16s18sits.sh -p [project folder] -f [fastq foder] -pt [fastq pattern]"
-    echo "example: bash 16s18sits.sh -p mynewproject -f 0-fastq16s -pt .fastq.gz"
+    echo "example: bash 16s18sits.sh -p mynewproject -f 0-raw -pt .fastq.gz"
     echo -e "\noptions available:\n"
     echo "-p Project folder, if no exist, the Pipeline will assume is the actual folder"
     exit

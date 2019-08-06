@@ -28,13 +28,14 @@ function statusb {
 
 		echo -e "inputFiles\tsize\tstepStatus" > tmp0
 		ls -lh *${PATTERN} |awk '{print $NF"\t"$5"\trunning"}' >> tmp1
-		echo "timeElpased" > tmp2
+		echo "timeElapsed" > tmp2
 		nfiles=$(ls -1 $FASTQFOLDER/*${PATTERN} |wc -l |awk '{print $1}')
 		echo $nfiles |awk '{for(i=1;i<=$1;i++)print "0:0:0"}' >> tmp2
 		
 		cat tmp0 tmp1 >> tmp && rm -f tmp0 tmp1
 		paste tmp tmp2 > rbqc.conf && rm tmp2
-		echo "timeElpased" > tmp1
+		
+		echo "timeElapsed" > tmp1
 		for fastqfile in $(ls *$PATTERN)
 		do
 			SECONDS=0

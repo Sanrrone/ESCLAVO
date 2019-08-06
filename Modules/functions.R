@@ -15,10 +15,15 @@ projectConf<-reactiveVal(data.frame())
 
 ############################# set cpu usage value
 cores<-as.numeric(system("nproc",wait = T,intern = T))
-con <- file("/proc/stat","r");cpuvec1 <- readLines(con,n=cores+1);close(con)
-cpudf1<-strsplit(cpuvec1," |  ") %>% bind_cols()
-colnames(cpudf1)<-cpudf1[1,]
-cpudf1<-data.frame(cpudf1[-1,-1])
+getcpudf<-function(){
+  con <- file("/proc/stat","r");cpuvec1 <- readLines(con,n=cores+1);close(con)
+  cpudf1<-strsplit(cpuvec1," |  ") %>% bind_cols()
+  colnames(cpudf1)<-cpudf1[1,]
+  cpudf1<-data.frame(cpudf1[-1,-1])
+  cpudf1
+}
+
+#cpudf1<-reactiveVal(cpudf1)
 ##############################
 
 makeProjectDescription<-function(projectFolder,fastqFolder,analysisType, aVersion, pStatus,pPercent,lStep){
@@ -61,24 +66,55 @@ parseTimes<-function(timesVector,type){
   
 }
 
-getCPUusage<-function(){
-
-  con <- file("/proc/stat","r")
-  cpuvec2 <- readLines(con,n=cores+1)
-  close(con)
-  
-  cpudf2<-strsplit(cpuvec2," |  ") %>% bind_cols()
-  colnames(cpudf2)<-cpudf2[1,]
-  cpudf2<-data.frame(cpudf2[-1,-1])
-  
+getCPUusage<-function(cpudf1){
+  cpudf2<-getcpudf()
   cpudf<-lapply(colnames(cpudf1), function(x){
     a<-as.numeric(cpudf1[,x])
     b<-as.numeric(cpudf2[,x])
-    usage<- 100*((b[1]+b[2]+b[3]+b[5]+b[6]+b[7]) - (a[1]+a[2]+a[3]+a[5]+a[6]+a[7])) / ((b[1]+b[2]+b[3]+b[4]+b[5]+b[6]+b[7]) - (a[1]+a[2]+a[3]+a[4]+a[5]+a[6]+a[7]))
+    
+    user<-b[1]
+    nice<-b[2]
+    system<-b[3]
+    idle<-b[4]
+    iowait<-b[5]
+    irq<-b[6]
+    softirq<-b[7]
+    steal<-b[8]
+    guest<-b[9]
+    guest_nice<-b[10]
+    
+    prevuser<-a[1]
+    prevnice<-a[2]
+    prevsystem<-a[3]
+    previdle<-a[4]
+    previowait<-a[5]
+    previrq<-a[6]
+    prevsoftirq<-a[7]
+    prevsteal<-a[8]
+    prevguest<-a[9]
+    prevguest_nice<-a[10]
+    
+    PrevIdle<-previdle + previowait
+    Idle<-idle + iowait
+    
+    PrevNonIdle<-prevuser + prevnice + prevsystem + previrq + prevsoftirq + prevsteal
+    NonIdle<-user + nice + system + irq + softirq + steal
+    
+    PrevTotal<-PrevIdle + PrevNonIdle
+    Total<-Idle + NonIdle
+    
+    totald<-Total - PrevTotal
+    idled<-Idle - PrevIdle
+    
+    usage<-(totald - idled)/totald*100
+    
 
-    data.frame(usage=round(usage,2), cpu=x,stringsAsFactors = F)
+    #usage<- 100*((b[1]+b[2]+b[3]+b[5]+b[6]+b[7]) - (a[1]+a[2]+a[3]+a[5]+a[6]+a[7])) / ((b[1]+b[2]+b[3]+b[4]+b[5]+b[6]+b[7]) - (a[1]+a[2]+a[3]+a[4]+a[5]+a[6]+a[7]))
+    usage<-ifelse(is.nan(usage),0,usage)
+    
+    data.frame(usage=round(usage,2), cpu=x, stringsAsFactors = F)
   }) %>% bind_rows()
-  #cpudf1<-reactiveVal(cpudf2)
+  #cpudf1(cpudf2)
   cpudf
 }
 

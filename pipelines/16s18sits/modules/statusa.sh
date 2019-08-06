@@ -28,16 +28,26 @@ function statusa {
 		echo -e "inputFiles\tsize\tstepStatus" > tmp0
 		ls -lh *${PATTERN} |awk '{print $NF"\t"$5"\trunning"}' >> tmp1
 		cat tmp0 tmp1 >> raqc.conf && rm -f tmp0 tmp1
-		echo "timeElpased" > tmp1
+
+		echo "timeElapsed" > tmp2
+		nfiles=$(ls -1 $FASTQFOLDER/*${PATTERN} |wc -l |awk '{print $1}')
+		echo $nfiles |awk '{for(i=1;i<=$1;i++)print "0:0:0"}' >> tmp2
+		paste raqc.conf tmp2 > tmp && rm raqc.conf tmp2 && mv tmp raqc.conf
+
+		echo "timeElapsed" > tmp2
 		for fastqfile in $(ls *${PATTERN})
 		do
 			SECONDS=0
 			fastqc -f fastq $fastqfile -o . -t $(nproc)
 			duration=$SECONDS
-			echo "$(($duration/60/60)):$(($duration/60)):$(($duration % 60))" >> tmp1
+			echo "$(($duration/60/60)):$(($duration/60)):$(($duration % 60))" >> tmp2
 		done
-		ls -1 *.html | grep -v "multiqc_report.html" | awk 'BEGIN{print "qcFiles"}{print $1}' >> tmp2
-		paste raqc.conf tmp2 tmp1 > tmp && rm -f tmp2 raqc.conf tmp1 && mv tmp raqc.conf
+		rm raqc.conf
+		echo -e "inputFiles\tsize\tstepStatus" > tmp0
+		ls -lh *${PATTERN} |awk '{print $NF"\t"$5"\trunning"}' >> tmp1
+		cat tmp0 tmp1 > raqc.conf && rm -f tmp0 tmp1
+		ls -1 *.html | grep -v "multiqc_report.html" | awk 'BEGIN{print "qcFiles"}{print $1}' >> tmp3
+		paste raqc.conf tmp2 tmp3 > tmp && rm -f tmp2 raqc.conf tmp1 && mv tmp raqc.conf
 		multiqc .
 		
 		sed -i "s/running/done/g" raqc.conf

@@ -135,8 +135,8 @@ newProjectModule<-function(input, output, session) {
     loadingState()
     switch(input$fastqActions,
            "1" = {},
-           "2" = {system(paste("cp -r", Fpath, paste0(Ppath,"/0-fastq")),wait = T);Fpath<-paste0(Ppath,"/0-fastq")},
-           "3" = {system(paste("mv", Fpath, paste0(Ppath,"/0-fastq")), wait = T);Fpath<-paste0(Ppath,"/0-fastq")}
+           "2" = {system(paste("cp -r", Fpath, paste0(Ppath,"/0-raw")),wait = T);Fpath<-paste0(Ppath,"/0-raw")},
+           "3" = {system(paste("mv", Fpath, paste0(Ppath,"/0-raw")), wait = T);Fpath<-paste0(Ppath,"/0-raw")}
     )
     setwd(Ppath)
     pname<-strsplit(Ppath,"/")[[1]]
@@ -148,10 +148,13 @@ newProjectModule<-function(input, output, session) {
                                        "not-performed",0,"none")
       write.table(aoptions,paste0(pname,"_eConf.tsv"),row.names = T,quote = F,sep = "\t")
     #}
-
-    projectName(pname)
-    projectFolder(Ppath)
+    
+    projectConf(aoptions)
     analysisType(input$analysisType)
+    projectFolder(Ppath)
+    projectName(pname)
+    
+    
 
     removeModal()
 

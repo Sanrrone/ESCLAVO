@@ -16,7 +16,7 @@ function qc {
 	lengthSeq=$(if [[ "$PATTERN" =~ "gz" ]] || [[ "$PATTERN" =~ "zip" ]]; then zcat $sampleR1 ;else cat $sampleR1 ;fi | awk -v total=$total '{if(NR%4==2 && NR<(total/4)) print length($1)}' | sort -n | uniq -c |tail -n1 |awk '{print $2}')
 	nfiles=$(ls -1 $FASTQFOLDER/*${PATTERN} |wc -l |awk '{print $1}')
 
-	echo "timeElpased" > tmp0
+	echo "timeElapsed" > tmp0
 	echo $nfiles |awk '{for(i=1;i<=$1;i++)print "0:0:0"}' >> tmp0
 	echo "inputFiles" > tmp1
 	ls -1 $FASTQFOLDER/*${PATTERN} >> tmp1
@@ -27,7 +27,8 @@ function qc {
 	echo "
 	rm(list=ls())
 	library(dada2)
-
+	options(scipen=999)
+	
 	path<-'$FASTQFOLDER'
 	fqpattern<-'$PATTERN'
 	tolerance<-$TOLERANCE
@@ -95,7 +96,7 @@ function qc {
 	SECONDS=0
 	Rscript --vanilla dada2_filt.R > dada2_filt.log
 	duration=$SECONDS
-	echo "timeElpased" > tmp0
+	echo "timeElapsed" > tmp0
 	echo $duration | awk -v nfiles=$nfiles -v duration=$duration '{for(i=1;i<=nfiles;i++){print int($1/60/60/nfiles)":"int($1/60/nfiles)":"($1%60)/nfiles}}' >> tmp0
 	echo "inputFiles" > tmp1
 	ls -1 $FASTQFOLDER/*${PATTERN} >> tmp1

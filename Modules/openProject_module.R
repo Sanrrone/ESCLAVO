@@ -65,10 +65,10 @@ openProjectModule<-function(input, output, session, parentSession) {
       return()
     }
     setwd(Ppath)
-    aoptions<-read.csv(paste0(pname,"_eConf.tsv"),header = T,sep = "\t",stringsAsFactors = F)
-    projectConf(aoptions)
-    analysisType(projectConf()["analysis",])
+    aoptions<-read.csv(paste0(pname,"_eConf.tsv"),header = T,sep = "\t",stringsAsFactors = F,row.names = 1)
+    analysisType(aoptions["analysis",])
     projectFolder(Ppath)
+    projectConf(aoptions)
     projectName(pname)
     
     removeModal()

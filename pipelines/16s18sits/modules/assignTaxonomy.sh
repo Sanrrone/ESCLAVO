@@ -17,10 +17,10 @@ function assignTaxonomy {
     cd 2-taxInsight
 
     nfiles=$(ls -1 $FASTQFOLDER/*${PATTERN} |wc -l |awk '{print $1}')
-	echo "timeElpased" > tmp0
+	echo "timeElapsed" > tmp0
 	echo $nfiles |awk '{for(i=1;i<=$1;i++)print "0:0:0"}' >> tmp0
 	echo "inputFiles" > tmp1
-	ls -1 $FASTQFOLDER/*${PATTERN} >> tmp1
+	ls -1 1-qc/*${PATTERN} >> tmp1
 	echo "stepStatus" > tmp2
 	echo $nfiles |awk '{for(i=1;i<=$1;i++)print "running"}' >> tmp2
 	paste tmp0 tmp1 tmp2 > tc.conf && rm tmp0 tmp1 tmp2
@@ -55,15 +55,15 @@ function assignTaxonomy {
 	write.table(tax_table(ps),'tax_table.tsv',sep='\t')
 
 
-	top20 <- names(sort(taxa_sums(ps), decreasing=TRUE))[1:20]
-	ps.top20 <- transform_sample_counts(ps, function(OTU) OTU/sum(OTU))
-	ps.top20 <- prune_taxa(top20, ps.top20)
+	top10 <- names(sort(taxa_sums(ps), decreasing=TRUE))[1:10]
+	ps.top10 <- transform_sample_counts(ps, function(OTU) OTU/sum(OTU))
+	ps.top10 <- prune_taxa(top10, ps.top10)
 	wformula=4 + length(sample_names(ps))*2.5
 	hformula=10
 	pdf('sampleTaxComposition.pdf', width=wformula, height=hformula)
-	plot_bar(ps.top20, x='Sample', fill='Genus') + geom_bar(position='fill', stat='identity', color='black') + 
+	plot_bar(ps.top10, x='Sample', fill='Genus') + geom_bar(position='fill', stat='identity', color='black') + 
 	  theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
-	plot_bar(ps.top20, x='Sample', fill='Family') + geom_bar(position='fill', stat='identity', color='black') + 
+	plot_bar(ps.top10, x='Sample', fill='Family') + geom_bar(position='fill', stat='identity', color='black') + 
 	  theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
 
 	dev.off()
@@ -76,7 +76,7 @@ function assignTaxonomy {
 	
 	#rm dada2_assign.R
 	
-	duration=$(echo $duration | awk -v nfiles=$nfiles -v duration=$duration '{print int($1/60/60/nfiles)":"int($1/60/nfiles)":"($1%60)/nfiles}')
+	duration=$(echo $duration | awk -v nfiles=$nfiles '{print int($1/60/60/nfiles)":"int($1/60/nfiles)":"($1%60)/nfiles}')
 
 	if [ "$PCONF" != "" ]; then
 		echo "ESCLAVO: Updating config file: $PCONF"

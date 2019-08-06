@@ -46,7 +46,7 @@ dashboardPagePlus(
         font-family: "Georgia", Times, "Times New Roman", serif;
         font-weight: bold;
         font-size: 25px;
-      }'
+      }'  
     ))),
    tags$head(tags$style(".modal-content {background: transparent;
                          box-shadow: inset 1px 2000px rgba(208, 208, 208, 0)}")),
