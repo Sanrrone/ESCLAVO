@@ -1,0 +1,7 @@
+Module	Section	Sample Name	Source
+FastQC	all_sections	ERR3357150_2	/home/sandro/Programas/ESCLAVO/0-raw/ERR3357150_2_fastqc.zip
+FastQC	all_sections	ERR3357130_1	/home/sandro/Programas/ESCLAVO/0-raw/ERR3357130_1_fastqc.zip
+FastQC	all_sections	ERR3357130_2	/home/sandro/Programas/ESCLAVO/0-raw/ERR3357130_2_fastqc.zip
+FastQC	all_sections	ERR3357150_1	/home/sandro/Programas/ESCLAVO/0-raw/ERR3357150_1_fastqc.zip
+FastQC	all_sections	ERR3357164_2	/home/sandro/Programas/ESCLAVO/0-raw/ERR3357164_2_fastqc.zip
+FastQC	all_sections	ERR3357164_1	/home/sandro/Programas/ESCLAVO/0-raw/ERR3357164_1_fastqc.zip

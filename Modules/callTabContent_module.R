@@ -232,7 +232,7 @@ tabContentModule<-function(input, output, session, parentSession) {
               
             })
             
-            
+            updateTabItems(session = parentSession, inputId =  "mainMenu", selected = "welcome")
             lapply(getAnalysisSteps(pipelines[[atype]]), function(x){
               observeEvent(input[[paste0(x$stepID,"_tabBtn")]],{
                 

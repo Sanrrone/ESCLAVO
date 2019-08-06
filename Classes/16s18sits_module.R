@@ -45,15 +45,17 @@ statusbTabModule<-function(input,output,session, stepID){
   
   observe({
     if(projectName()=="")return()
+    
     ffolder<-projectConf()["ffolder",]
     pattern<-projectConf()["fqpattern",]
+    
     if(!file.exists(paste0(ffolder,"/",stepID,".conf"))){
       stepStatus<-"not-performed"
       stepconf<-data.frame(inputFiles=list.files(ffolder,pattern = pattern),
                            qcFile=NA,
                            stringsAsFactors = F)
     }else{
-      stepconf<-read.table(paste0(ffolder,"/",stepID,".conf"),
+      stepconf<-read.table(paste0(projectConf()["ffolder",],"/",stepID,".conf"),
                            sep = "\t", header = T,
                            stringsAsFactors = F)
       stepStatus<-unique(stepconf[,"stepStatus"])
@@ -147,18 +149,21 @@ qcModule<-function(input,output,session,stepID){
     
     ffolder<-projectConf()["ffolder",]
     pattern<-projectConf()["fqpattern",]
-    if(!file.exists(paste0("1-qc/",stepID,".conf"))){
+    pfolder<-paste0(projectConf()["pfolder",],"/1-qc/")
+    if(!file.exists(paste0(pfolder,stepID,".conf"))){
       stepStatus<-"not-performed"
       stepconf<-data.frame(inputFiles=list.files(ffolder,pattern = pattern),
                            qcFile=NA,
                            stringsAsFactors = F)
     }else{
-      stepconf<-read.table(paste0("1-qc/",stepID,".conf"),
+      stepconf<-read.table(paste0(pfolder,stepID,".conf"),
                            sep = "\t", header = T,
                            stringsAsFactors = F)
       stepStatus<-unique(stepconf[,"stepStatus"])
       
       output$QCresultsUI<- renderUI({
+        if(ncol(stepconf)<=2)return()
+        
         fluidRow(gradientBox(title = "QC Summary", width = 12, icon = 'fa fa-stream',
                              gradientColor = "purple",  boxToolSize = "xs",
                              footer = dataTableOutput(ns("qcReportUI"))
@@ -194,7 +199,8 @@ qcModule<-function(input,output,session,stepID){
     
 
     output$qcReportUI<- renderDataTable({
-      qcdf<-read.table(paste0("1-qc/qc_summary.tsv"),sep = "\t",stringsAsFactors = F)
+      if(!file.exists(paste0(pfolder,"qc_summary.tsv")))return()
+      qcdf<-read.table(paste0(pfolder,"qc_summary.tsv"),sep = "\t",stringsAsFactors = F)
       datatable(qcdf,options = list(scrollX=TRUE, scrollCollapse=TRUE))
     })
 
@@ -252,18 +258,23 @@ statusaTabModule<-function(input,output,session, stepID){
     if(projectName()=="")return()
     ffolder<-projectConf()["ffolder",]
     pattern<-projectConf()["fqpattern",]
-    if(!file.exists(paste0("1-qc/",stepID,".conf"))){
+    pfolder<-paste0(projectConf()["pfolder",],"/1-qc/")
+    
+    if(!file.exists(paste0(pfolder,stepID,".conf"))){
       stepStatus<-"not-performed"
       stepconf<-data.frame(inputFiles=list.files(ffolder,pattern = pattern),
                            qcFile=NA,
                            stringsAsFactors = F)
     }else{
-      stepconf<-read.table(paste0("1-qc/",stepID,".conf"),
+      stepconf<-read.table(paste0(pfolder,stepID,".conf"),
                            sep = "\t", header = T,
                            stringsAsFactors = F)
       stepStatus<-unique(stepconf[,"stepStatus"])
+      
       output$readReportSampleAfterUI<-renderUI({
-          addResourcePath("ffolder","1-qc") #add fastq folder to allow iframe load the local html file
+        if(ncol(stepconf)<=2 )return()
+        
+          addResourcePath("ffolder",pfolder) #add fastq folder to allow iframe load the local html file
           box(title = "Read status report", width = 12, icon = 'fa fa-stream',
               gradientColor = "purple",  boxToolSize = "xs", collapsible = T,
               footer = fluidRow(column(width = 12,
@@ -351,18 +362,22 @@ taxCountTabModule<-function(input,output,session, stepID){
     if(projectName()=="")return()
     ffolder<-projectConf()["ffolder",]
     pattern<-projectConf()["fqpattern",]
-    if(!file.exists(paste0("2-taxInsight/",stepID,".conf"))){
+    pfolder<-paste0(projectConf()["pfolder",],"/2-taxInsight/")
+    
+    if(!file.exists(paste0(pfolder,stepID,".conf"))){
       stepStatus<-"not-performed"
       stepconf<-data.frame(inputFiles=list.files(ffolder,pattern = pattern),
                            qcFile=NA,
                            stringsAsFactors = F)
     }else{
-      stepconf<-read.table(paste0("2-taxInsight/",stepID,".conf"),
+      stepconf<-read.table(paste0(pfolder,stepID,".conf"),
                            sep = "\t", header = T,
                            stringsAsFactors = F)
       stepStatus<-unique(stepconf[,"stepStatus"])
-      tax<-read.table("2-taxInsight/tax_table.tsv",sep = "\t",header = T,stringsAsFactors = F)
-      otu<-read.table("2-taxInsight/otu_table.tsv",sep = "\t",header = T,stringsAsFactors = F)
+      if(!file.exists(paste0(pfolder,"tax_table.tsv")))return()
+      
+      tax<-read.table(paste0(pfolder,"tax_table.tsv"),sep = "\t",header = T,stringsAsFactors = F)
+      otu<-read.table(paste0(pfolder,"otu_table.tsv"),sep = "\t",header = T,stringsAsFactors = F)
       
       ps<-phyloseq(otu_table(otu, taxa_are_rows=FALSE), tax_table(as.matrix(tax)))
       top10 <- names(sort(taxa_sums(ps), decreasing=TRUE))[1:10]
@@ -371,11 +386,13 @@ taxCountTabModule<-function(input,output,session, stepID){
       ps<-reactiveVal(ps.top10)
       
       output$TCresultsUI <- renderUI({
+        if(ncol(stepconf)<=2 | !file.exists(paste0(pfolder,"/abundance.tsv")))return()
+        
         fluidRow(
           fluidRow(gradientBox(title = "Taxonomic abundance", width = 12, icon = 'fa fa-calculator',
                                gradientColor = "purple",  boxToolSize = "xs",
                                footer = dataTableOutput(ns("tcabundanceUI"))
-          )
+                  )
           ),
           fluidRow(
             column(width = 6,
@@ -423,7 +440,7 @@ taxCountTabModule<-function(input,output,session, stepID){
     })
     
     output$tcabundanceUI<- renderDataTable({
-      tcdf<-read.table(paste0("2-taxInsight/abundance.tsv"),sep = "\t",stringsAsFactors = F,header = T)
+      tcdf<-read.table(paste0(pfolder,"/abundance.tsv"),sep = "\t",stringsAsFactors = F,header = T)
       datatable(tcdf,options = list(scrollX=TRUE, scrollCollapse=TRUE))
     })
     

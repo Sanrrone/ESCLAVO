@@ -47,7 +47,7 @@ function statusa {
 		ls -lh *${PATTERN} |awk '{print $NF"\t"$5"\trunning"}' >> tmp1
 		cat tmp0 tmp1 > raqc.conf && rm -f tmp0 tmp1
 		ls -1 *.html | grep -v "multiqc_report.html" | awk 'BEGIN{print "qcFiles"}{print $1}' >> tmp3
-		paste raqc.conf tmp2 tmp3 > tmp && rm -f tmp2 raqc.conf tmp1 && mv tmp raqc.conf
+		paste raqc.conf tmp2 tmp3 > tmp && rm -f tmp2 raqc.conf tmp1 tmp3 && mv tmp raqc.conf
 		multiqc .
 		
 		sed -i "s/running/done/g" raqc.conf
