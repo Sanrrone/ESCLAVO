@@ -20,7 +20,7 @@ function assignTaxonomy {
 	echo "timeElapsed" > tmp0
 	echo $nfiles |awk '{for(i=1;i<=$1;i++)print "0:0:0"}' >> tmp0
 	echo "inputFiles" > tmp1
-	ls -1 1-qc/*${PATTERN} >> tmp1
+	ls -1 ../1-qc/*${PATTERN} >> tmp1
 	echo "stepStatus" > tmp2
 	echo $nfiles |awk '{for(i=1;i<=$1;i++)print "running"}' >> tmp2
 	paste tmp0 tmp1 tmp2 > tc.conf && rm tmp0 tmp1 tmp2

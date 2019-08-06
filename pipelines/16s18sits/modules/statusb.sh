@@ -34,17 +34,21 @@ function statusb {
 		
 		cat tmp0 tmp1 >> tmp && rm -f tmp0 tmp1
 		paste tmp tmp2 > rbqc.conf && rm tmp2
-		
-		echo "timeElapsed" > tmp1
+
+		echo "timeElapsed" > tmp2
 		for fastqfile in $(ls *$PATTERN)
 		do
 			SECONDS=0
 			fastqc -f fastq $fastqfile -o . -t $(nproc)
 			duration=$SECONDS
-			echo "$(($duration/60/60)):$(($duration/60)):$(($duration % 60))" >> tmp1
+			echo "$(($duration/60/60)):$(($duration/60)):$(($duration % 60))" >> tmp2
 		done
-		ls -1 *.html | grep -v "multiqc_report.html" | awk 'BEGIN{print "qcFiles"}{print $1}' >> tmp2
-		paste rbqc.conf tmp2 tmp1 > tmp && rm -f tmp2 rbqc.conf tmp1 && mv tmp rbqc.conf
+		rm rbqc.conf
+		echo -e "inputFiles\tsize\tstepStatus" > tmp0
+		ls -lh *${PATTERN} |awk '{print $NF"\t"$5"\trunning"}' >> tmp1
+		cat tmp0 tmp1 > rbqc.conf && rm -f tmp0 tmp1
+		ls -1 *.html | grep -v "multiqc_report.html" | awk 'BEGIN{print "qcFiles"}{print $1}' >> tmp3
+		paste rbqc.conf tmp2 tmp3 > tmp && rm -f tmp2 rbqc.conf tmp1 && mv tmp rbqc.conf
 		multiqc .
 
 		sed -i "s/running/done/g" rbqc.conf

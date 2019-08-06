@@ -17,10 +17,17 @@ function(input, output, session) {
   #call Step pipelines modules
   observe({
     if(projectName()!=""){
-      for(x in getAnalysisSteps(pipelines[[analysisType()]])){
-        mVector<-x$tabcontentSrv
-        callModule(module = mVector$server,id = mVector$id, x$stepID)
-      }
+      
+      callmodules<-reactivePoll(intervalMillis = 10000, session = session,
+                                       checkFunc = function(){digest(paste0(projectFolder(),"/",projectName(),"_eConf.tsv"),
+                                                                                       algo="md5",file=TRUE)},
+                                       valueFunc = function(){
+                                           lapply(getAnalysisSteps(pipelines[[analysisType()]]), function(x){
+                                             mVector<-x$tabcontentSrv
+                                             callModule(module = mVector$server,id = mVector$id, x$stepID)
+                                           })
+                                         })
+      callmodules()
     }
   })
 
