@@ -17,6 +17,6 @@ function makeReport {
 
 	Rscript report.R
 
-	rm -f report.R report.Rmd report.aux report.dvi report.toc
+	rm -f report.R report.Rmd report.aux report.dvi report.toc report.out
 
 }
