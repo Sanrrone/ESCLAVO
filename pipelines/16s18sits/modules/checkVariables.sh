@@ -6,7 +6,7 @@ if [ "$PROJECTFOLDER" == "" ];then
 fi
 
 if [ "$MODULE" == "" ] || [ "$MODULE" == "all" ] || [ "$MODULE" == "ALL" ]; then
-	MODULE="statusb humanDecont qc statusa assignTaxonomy"
+	MODULE="statusb humanDecont qc statusa assignTaxonomy report"
 fi
 
 }

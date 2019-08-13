@@ -13,10 +13,13 @@ source $ESCLAVOHOME/modules/humanDecont.sh
 source $ESCLAVOHOME/modules/qc.sh
 source $ESCLAVOHOME/modules/statusa.sh
 source $ESCLAVOHOME/modules/assignTaxonomy.sh
+source $ESCLAVOHOME/modules/report.sh
 
 #usage: bash 16s18sits.sh --force -p /home/sandro/Programas/ESCLAVO/projects -f /home/sandro/Programas/ESCLAVO/0-raw -pt .fastq.gz
 #software requirements
-# FASTQC (better download and create alias), MULTIQC, DADA2 (r), silvaDB https://zenodo.org/record/1172783#.XUMZwfx7k5k
+# FASTQC (better download and create alias), MULTIQC
+# sudo apt install pandoc
+#R packages: DADA2, rmarkdown, rmdformats, DT, dplyr, ggplot2, plotly, stringr
 
 POSITIONAL=()
 while [[ $# -gt 0 ]]
@@ -86,7 +89,7 @@ checkVariables
 
 
 cd $PROJECTFOLDER
-PNAME=$(pwd | awk -F"/" '{print $NF"_eConf.tsv"}')
+export PNAME=$(pwd | awk -F"/" '{print $NF"_eConf.tsv"}')
 export PCONF=$(pwd | awk -v pname=$PNAME '{print $0"/"pname}')
 
 if [ ! -f "$PNAME" ] || [ $FORCE ]; then
@@ -119,6 +122,9 @@ do
         ;;
         "assignTaxonomy")
             assignTaxonomy 2-taxInsight
+        ;;
+        "report")
+            makeReport 0-raw 1-qc 2-taxInsight
         ;;
         *)
             echo "Module $mod not recognized"

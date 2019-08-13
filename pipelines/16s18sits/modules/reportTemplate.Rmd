@@ -1,0 +1,185 @@
+---
+#title: "16S analysis"
+#date: "`r Sys.Date()`"
+output: rmdformats::material
+always_allow_html: yes
+params: 
+  outtype: outtype
+  nfastq: nfastq
+  proyectname: proyectname
+  qcreport: qcreport
+  allfiles: allfiles
+  qctable: qctable
+  SummaryAbu: SummaryAbu
+---
+  
+  
+```{r knitr_init, echo=FALSE, cache=FALSE}
+library(knitr)
+suppressMessages(library(kableExtra))
+## Global options
+opts_chunk$set(echo=FALSE,
+               cache=FALSE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+
+```
+
+```{r echo=FALSE} 
+if(params$outtype=="pdf"){
+coverp<-paste0("\\centering
+
+\\begin{titlepage}
+   \\begin{center}
+       \\vspace*{0.5cm}
+ 
+%\\textsc{\\LARGE }\\\\[0.8cm] % Name of your university/college
+\\textsc{\\large ESCLAVO v1.0}\\\\[1.5cm] % Major heading such as course name
+
+{ \\huge \\bfseries 16S analysis}\\\\[2cm] % Title of your document
+
+\\begin{minipage}{0.6\\textwidth}
+\\begin{center} \\large
+\\emph{Autor:} Michael Jackson % Your name
+\\end{center}
+\\end{minipage}
+
+\\vspace{2.5cm}
+ 
+\\includegraphics[width=0.4\\textwidth]{ESCLAVOLOGO}
+
+ 
+   \\end{center}
+\\end{titlepage}
+
+\\raggedright
+\\clearpage
+
+\\tableofcontents
+\\clearpage")
+}else{
+coverp<-"<style>
+  .header-panel {background-color: darkred;}
+</style>"
+}
+```
+
+`r coverp`
+
+# 1- Experimental samples read asignation
+
+A total of ```r params$nfastq``` sequence were recived and processed through Illumina Miseq platform, generating 150bp paired-end sequences for each sample (r1 & r2) with qualified libraries. For full analysis source and files results please download the *`r params$proyectname`* folder which contains the following:
+
+* **0-raw**: The initial FASTQ files used in downstream steps, also contains an initial QC report.
+* **1-qc**: Filtered reads used to map against DADA2 DB, also contains an QC report.
+* **2-taxInsight**: Counts and Plots for mapped reads against DADA2 DB.
+* **report.pdf**: static report, a formal way to read a report.
+* **report.html**: dynamic report with interactive plots and tables.
+
+# 2- Read quality control
+
+The first bioinformatic analysis step is the quality filter reads using DADA2^1^ software which consider:
+
+* adapter removal from Illumina sequencing.
+* remove bad quality bases at the end of reads (min Quality: 20).
+* remove reads who in average have Phread < 20.
+* remove Phix sequences from samples.
+
+Quality reports for the ```r params$nfastq``` samples before and after filter were generated using FASTQC^2^. The figures 1 and 2 show a high quality and homogenity distribution along the reads, both represent a post filter quality summary for the ```r params$nfastq * 2``` files (r1 and r2), which can be analyzed in more details `r ifelse(params$outtype == "pdf", "in the following table: ", paste0("in the html file ",params$qcreport, ":") )`
+
+```{r, echo=FALSE}
+if(params$outtype == "pdf"){
+  kable(params$qctable ,escape = F,format = "latex",align = c('l'),longtable=T, caption="Summary of quality control initial reads after dada2 filt, dereplicate and merge steps.") %>% kable_styling(latex_options=c("hold_position", "repeat_header"), bootstrap_options = "striped", full_width = T, font_size = 9) %>% row_spec(0, bold=TRUE)
+}else{
+  datatable(params$qctable, options = list(pageLength = 5, scrollX = TRUE),
+            caption="Table 1. Summary of quality control initial reads after dada2 filt, dereplicate and merge steps.")
+}
+```
+`r if(params$outtype == "html"){"Where the column meaning are:
+
+* **Sample**: sample label (for r1 and r2 in a single row).
+* **input**: total reads from each fastq file.
+* **filtered**: filtered reads after applied dada2 filt step (min QC = 20).
+* **denoisedF & denoisedR**: reads without noise data (error learned reads).
+* **merged**: total reads merged after filter, dereplicated and denoised steps.
+* **nonchim**: finally the total reads after remove chimera sequences and the total reads used for the next steps.
+
+Additionally you can check the full QC filtered reads made using MultiQC^2^ bellow:
+"}`
+
+<script>
+var refreshed=0;
+$(document).ready(function() {
+    var refreshed=0;
+    var iframeWin = parent.document.getElementById('qcreportID');
+    iframeWin.height = document.body.scrollHeight;
+
+});
+function refreshQCIframe() {
+     var ifr = document.getElementById('qcreportID');
+     ifr.src = ifr.src;
+}
+$('a[href]').on('click', function(){
+    link=this.href.split("#");
+    link=link[link.length-1];
+    if(link=="read-quality-control"){
+      refreshQCIframe()
+    }
+
+});
+</script>
+
+<iframe id="qcreportID" src="`r params$qcreport`" frameborder="0" width="100%" height="100%" ></iframe>
+
+
+
+# 3- Taxonomic insight
+
+After non-chimera filtered reads, the next step is map it against a taxonomic database, we used the SILVA^3^ v132 database and DADA2 *assignTaxonomy* function to map in a 100% the aligment as their authors recommends. The a summary of results obtained from the assign taxonomy can be checked in the following table:
+
+```{r, echo=FALSE}
+SummaryAbu[is.na(SummaryAbu)]<-"Unclassified"
+
+if(params$outtype=="pdf"){
+kable(params$SummaryAbu ,escape = T,format = "latex",align = c('l'),longtable=T, caption="DADA2 top 10 abundances taxas for each sample. The table include at least 1 read assigned for at least 1 sample.") %>% kable_styling(latex_options=c("hold_position", "repeat_header"), bootstrap_options = "striped", full_width = T, font_size = 9) %>% row_spec(0, bold=TRUE)
+}else{
+  datatable(params$SummaryAbu, rownames = F, options = list(pageLength = 5, scrollX = TRUE),
+            caption="Table 2. DADA2 top 10 abundances taxas for each sample. The table include at least 1 read assigned for at least 1 sample.")
+}
+```
+
+graphically it can be shown as a barplot:
+
+<center>
+```{r echo=FALSE}
+melted<-melt(SummaryAbu)
+p<-ggplot(melted,aes(variable,value, fill=Genus)) + geom_bar(position='fill', stat='identity', color='black') + 
+	  theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+if(params$outtype=="pdf"){
+  p
+}else{
+  ggplotly(p)
+}
+
+```
+</center>
+
+if you want the full table, please see the file ABUNDANCEFILE.
+
+# References 
+
+1. Callahan BJ, McMurdie PJ, Rosen MJ, Han AW, Johnson AJA, Holmes SP (2016). "DADA2: High-resolution sample inference from Illumina amplicon data." Nature Methods, 13, 581-583. doi: 10.1038/nmeth.3869.
+
+2. Philip Ewels, Måns Magnusson, Sverker Lundin and Max Käller. "MultiQC: Summarize analysis results for multiple tools and samples in a single report." Bioinformatics (2016), doi: 10.1093/bioinformatics/btw354, PMID: 27312411
+
+3. Yilmaz P, Parfrey LW, Yarza P, Gerken J, Pruesse E, Quast C, Schweer T, Peplies J, Ludwig W, Glöckner FO (2014) The SILVA and "All-species Living Tree Project (LTP)" taxonomic frameworks. Opens external link in new windowNucl. Acids Res. 42:D643-D648
+
+4.
+
+
+
+
+
