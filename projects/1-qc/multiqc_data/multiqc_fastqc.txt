@@ -1,7 +1,0 @@
-Sample	adapter_content	Sequences flagged as poor quality	sequence_duplication_levels	avg_sequence_length	Encoding	per_base_sequence_quality	sequence_length_distribution	Sequence length	File type	basic_statistics	per_sequence_gc_content	Total Sequences	per_base_n_content	per_base_sequence_content	overrepresented_sequences	%GC	total_deduplicated_percentage	Filename	per_sequence_quality_scores
-ERR3357130_F_filt	pass	0.0	fail	137.0	Sanger / Illumina 1.9	pass	pass	137.0	Conventional base calls	pass	fail	89380.0	pass	fail	fail	52.0	3.77936898635	ERR3357130_F_filt.fastq.gz	pass
-ERR3357130_R_filt	pass	0.0	fail	137.0	Sanger / Illumina 1.9	pass	pass	137.0	Conventional base calls	pass	fail	89380.0	pass	fail	fail	54.0	7.09442828373	ERR3357130_R_filt.fastq.gz	pass
-ERR3357150_F_filt	pass	0.0	fail	137.0	Sanger / Illumina 1.9	pass	pass	137.0	Conventional base calls	pass	fail	90656.0	pass	fail	fail	51.0	3.09301094246	ERR3357150_F_filt.fastq.gz	pass
-ERR3357150_R_filt	pass	0.0	fail	137.0	Sanger / Illumina 1.9	pass	pass	137.0	Conventional base calls	pass	fail	90656.0	pass	fail	fail	53.0	5.75803035651	ERR3357150_R_filt.fastq.gz	pass
-ERR3357164_F_filt	pass	0.0	fail	137.0	Sanger / Illumina 1.9	pass	pass	137.0	Conventional base calls	pass	fail	93646.0	pass	fail	fail	49.0	3.43954893962	ERR3357164_F_filt.fastq.gz	pass
-ERR3357164_R_filt	pass	0.0	fail	137.0	Sanger / Illumina 1.9	pass	pass	137.0	Conventional base calls	pass	fail	93646.0	pass	fail	fail	52.0	4.60457467484	ERR3357164_R_filt.fastq.gz	pass

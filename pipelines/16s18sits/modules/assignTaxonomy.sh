@@ -59,24 +59,39 @@ function assignTaxonomy {
 	ps.top10 <- prune_taxa(top10, ps.top10)
 	hformula=10
 
-	if(file.exists('../0-raw/metadata.tsv'){
-		metadata<-read.table('../0-raw/metadata.tsv', sep='\t', header=T, stringsAsFactors = F)
-
-		wformula=4 + length(sample_names(ps))*2.5 + length(unique(metadata$conditions))
-	
-		pdf('sampleTaxComposition.pdf', width=wformula, height=hformula)
-		plot_bar(ps.top10, x='Sample', fill='Genus') + geom_bar(position='fill', stat='identity', color='black') + 
-		  theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
-		plot_bar(ps.top10, x='Sample', fill='Family') + geom_bar(position='fill', stat='identity', color='black') + 
-		  theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+	if(file.exists('$FASTQFOLDER/metadata.tsv')){
+	  metadata<-read.table('$FASTQFOLDER/metadata.tsv', sep='\t', header=T, stringsAsFactors = F)
+	  rownames(metadata)<-metadata$sample
+	  sample_data(ps)<-sample_data(metadata)
+	  ordu = ordinate(ps, 'PCoA', weighted=TRUE)
+	  pdf('pcoa.pdf', width=10, height=10)
+	  plot_ordination(ps, ordu, color='treatment') + geom_point(size=3)
+	  dev.off()
 	}else{
-		wformula=4 + length(sample_names(ps))*2.5
-	
-		pdf('sampleTaxComposition.pdf', width=wformula, height=hformula)
-		plot_bar(ps.top10, x='Sample', fill='Genus') + geom_bar(position='fill', stat='identity', color='black') + 
-		  theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
-		plot_bar(ps.top10, x='Sample', fill='Family') + geom_bar(position='fill', stat='identity', color='black') + 
-		  theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+	  metadata<-data.frame()
+	}
+
+
+	top10 <- names(sort(taxa_sums(ps), decreasing=TRUE))[1:10]
+	ps.top10 <- transform_sample_counts(ps, function(OTU) OTU/sum(OTU))
+	ps.top10 <- prune_taxa(top10, ps.top10)
+
+	if(nrow(metadata)!=0 & 'treatment' %in% colnames(metadata) & 'sample' %in% colnames(metadata)){
+
+	  wformula=4 + length(sample_names(ps))*2.5 + length(unique(metadata$treatment))
+	  pdf('sampleTaxComposition.pdf', width=wformula, height=hformula)
+	  plot_bar(ps.top10, x='Sample', fill='Genus') + geom_bar(position='fill', stat='identity', color='black') + 
+	    theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1)) + facet_wrap(.~treatment,scales = 'free_x')
+	  plot_bar(ps.top10, x='Sample', fill='Family') + geom_bar(position='fill', stat='identity', color='black') + 
+	    theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1)) + facet_wrap(.~treatment,scales = 'free_x')
+	}else{
+	  wformula=4 + length(sample_names(ps))*2.5
+	  
+	  pdf('sampleTaxComposition.pdf', width=wformula, height=hformula)
+	  plot_bar(ps.top10, x='Sample', fill='Genus') + geom_bar(position='fill', stat='identity', color='black') + 
+	    theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+	  plot_bar(ps.top10, x='Sample', fill='Family') + geom_bar(position='fill', stat='identity', color='black') + 
+	    theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
 	}
 	dev.off()
 
