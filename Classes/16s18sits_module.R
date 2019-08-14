@@ -93,7 +93,7 @@ statusbTabModule<-function(input,output,session, stepID){
         )
       }
     })
-    
+
     output$rbqcTable<-renderDataTable({
       datatable(stepconf,options = list(scrollX=TRUE, scrollCollapse=TRUE))
     })
@@ -319,36 +319,52 @@ taxCountTabUIm<-function(id, stepTabName,folder, soft, sversion, spath){
   ns<-NS(id)
   
   tabItem(tabName = stepTabName,
-          fluidRow(column(width = 6,
-                          gradientBox(title = "Input files", width = 12, icon = 'fa fa-stream',
-                                      gradientColor = "purple",  boxToolSize = "xs",
-                                      footer = dataTableOutput(ns("tcTable"))
-                          )
-          ),
-          column(width = 3,
-                 gradientBox(title = "Software details", width = 12, icon = 'fa fa-barcode',
-                             gradientColor = "purple",  boxToolSize = "xs",
-                             footer = fluidRow(column(width = 12, style = "overflow-x:scroll;",
-                                                      tags$strong(soft),sversion,
-                                                      tags$br(),
-                                                      tags$strong("Work folder: "),folder,
-                                                      tags$br(),
-                                                      tags$strong("Location: "),spath,
-                                                      tags$br()
-                             )
-                             )
-                 )
-          ),
-          column(width = 3,
-                 gradientBox(title = "Taxonomic count step", width = 12, icon = 'fa fa-stream',
-                             gradientColor = "purple",  boxToolSize = "xs",
-                             footer = fluidRow(
-                               column(width = 12,
-                                      uiOutput(ns("tcUI"))
-                               )
-                             )
-                 )
-          )
+          fluidRow(
+            column(width = 6,
+                   fluidRow(
+                     column(width = 6,
+                            gradientBox(title = "Software details", width = 12, icon = 'fa fa-barcode',
+                                        gradientColor = "purple",  boxToolSize = "xs",
+                                        footer = fluidRow(column(width = 12, style = "overflow-x:scroll;",
+                                                                 tags$strong(soft),sversion,
+                                                                 tags$br(),
+                                                                 tags$strong("Work folder: "),folder,
+                                                                 tags$br(),
+                                                                 tags$strong("Location: "),spath,
+                                                                 tags$br()
+                                        )
+                                        )
+                            )
+                     ),
+                     column(width = 6,
+                            gradientBox(title = "Taxonomic count step", width = 12, icon = 'fa fa-stream',
+                                        gradientColor = "purple",  boxToolSize = "xs",
+                                        footer = fluidRow(
+                                          column(width = 12,
+                                                 uiOutput(ns("tcUI"))
+                                          )
+                                        )
+                            )
+                     )
+                     
+                   ),
+                   fluidRow(
+                     gradientBox(title = "Principal Component Analysis", width = 12, icon = 'fa fa-stream',
+                                 gradientColor = "purple",  boxToolSize = "xs",
+                                 footer = fluidRow(
+                                   column(width = 12,
+                                          plotlyOutput(ns("TCpcoa"))
+                                   )
+                                 )
+                     )
+                   )
+            ),
+            column(width = 6,
+                   gradientBox(title = "Input files", width = 12, icon = 'fa fa-stream',
+                               gradientColor = "purple",  boxToolSize = "xs",
+                               footer = dataTableOutput(ns("tcTable"))
+                   )
+            )
           ),
           uiOutput(ns("TCresultsUI"))
           
@@ -376,17 +392,32 @@ taxCountTabModule<-function(input,output,session, stepID){
       stepStatus<-unique(stepconf[,"stepStatus"])
       if(!file.exists(paste0(pfolder,"tax_table.tsv")))return()
       
-      tax<-read.table(paste0(pfolder,"tax_table.tsv"),sep = "\t",header = T,stringsAsFactors = F)
-      otu<-read.table(paste0(pfolder,"otu_table.tsv"),sep = "\t",header = T,stringsAsFactors = F)
-      
+      tax<-read.table(paste0(pfolder,"tax_table.tsv"), sep = "\t", header = T,stringsAsFactors = F)
+      otu<-read.table(paste0(pfolder,"otu_table.tsv"), sep = "\t", header = T,stringsAsFactors = F)
+      tax[is.na(tax)]<-"Unclassified"
       ps<-phyloseq(otu_table(otu, taxa_are_rows=FALSE), tax_table(as.matrix(tax)))
+      if(file.exists(paste0(ffolder,'/metadata.tsv'))){
+        metadata<-read.table(paste0(ffolder,'/metadata.tsv'), sep='\t', header=T, stringsAsFactors = F)
+        rownames(metadata)<-metadata$sample
+        sample_data(ps)<-sample_data(metadata)
+      }else{
+        metadata<-data.frame()
+      }
+      
       top10 <- names(sort(taxa_sums(ps), decreasing=TRUE))[1:10]
       ps.top10 <- transform_sample_counts(ps, function(OTU) OTU/sum(OTU))
       ps.top10 <- prune_taxa(top10, ps.top10)
-      ps<-reactiveVal(ps.top10)
+      
+      pst10<-reactiveVal(ps.top10)
+      ps<-reactiveVal(ps)
+      
+      output$TCpcoa <- renderPlotly({
+        ordu = ordinate(ps(), 'PCoA', weighted=TRUE)
+        plot_ordination(ps(), ordu, color='treatment') + geom_point(size=3)
+      })
       
       output$TCresultsUI <- renderUI({
-        if(ncol(stepconf)<=2 | !file.exists(paste0(pfolder,"/abundance.tsv")))return()
+        if(ncol(stepconf)<=2 | !file.exists(paste0(pfolder,"abundance.tsv")))return()
         
         fluidRow(
           fluidRow(gradientBox(title = "Taxonomic abundance", width = 12, icon = 'fa fa-calculator',
@@ -440,18 +471,28 @@ taxCountTabModule<-function(input,output,session, stepID){
     })
     
     output$tcabundanceUI<- renderDataTable({
-      tcdf<-read.table(paste0(pfolder,"/abundance.tsv"),sep = "\t",stringsAsFactors = F,header = T)
+      tcdf<-read.table(paste0(pfolder,"abundance.tsv"),sep = "\t",stringsAsFactors = F,header = T)
       datatable(tcdf,options = list(scrollX=TRUE, scrollCollapse=TRUE))
     })
     
     output$abundanceFamUI<- renderPlot({
-      plot_bar(ps(), x='Sample', fill='Family') + geom_bar(position='fill', stat='identity', color='black') + 
-        theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+      if(nrow(metadata)!=0 & 'treatment' %in% colnames(metadata) & 'sample' %in% colnames(metadata)){
+        plot_bar(pst10(), x='Sample', fill='Family') + geom_bar(position='fill', stat='identity', color='black') + 
+          theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1)) + facet_wrap(.~treatment,scales = 'free_x')
+      }else{
+        plot_bar(pst10(), x='Sample', fill='Family') + geom_bar(position='fill', stat='identity', color='black') + 
+          theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+      }
     })
     
     output$abundanceGenUI<- renderPlot({
-      plot_bar(ps(), x='Sample', fill='Genus') + geom_bar(position='fill', stat='identity', color='black') + 
-        theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+      if(nrow(metadata)!=0 & 'treatment' %in% colnames(metadata) & 'sample' %in% colnames(metadata)){
+        plot_bar(pst10(), x='Sample', fill='Genus') + geom_bar(position='fill', stat='identity', color='black') + 
+          theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1)) + facet_wrap(.~treatment,scales = 'free_x')
+      }else{
+        plot_bar(pst10(), x='Sample', fill='Genus') + geom_bar(position='fill', stat='identity', color='black') + 
+          theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+      }
     })
     
   })

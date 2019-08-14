@@ -8,18 +8,13 @@ if [ -f ~/.bash_alias ]; then source ~/.bash_alias; fi
 
 export ESCLAVOHOME=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 source $ESCLAVOHOME/modules/checkVariables.sh
-source $ESCLAVOHOME/modules/statusb.sh
-source $ESCLAVOHOME/modules/humanDecont.sh
-source $ESCLAVOHOME/modules/qc.sh
-source $ESCLAVOHOME/modules/statusa.sh
-source $ESCLAVOHOME/modules/assignTaxonomy.sh
-source $ESCLAVOHOME/modules/report.sh
+
 
 #usage: bash 16s18sits.sh --force -p /home/sandro/Programas/ESCLAVO/projects -f /home/sandro/Programas/ESCLAVO/0-raw -pt .fastq.gz
 #software requirements
 # FASTQC (better download and create alias), MULTIQC
 # sudo apt install pandoc
-#R packages: DADA2, rmarkdown, rmdformats, DT, dplyr, ggplot2, plotly, stringr
+#R packages: DADA2, rmarkdown, rmdformats, DT, dplyr, ggplot2, plotly, stringr, Biostrings
 
 POSITIONAL=()
 while [[ $# -gt 0 ]]
@@ -27,12 +22,12 @@ do
 key="$1"
 case $key in
     -p|--projectfolder)
-    PROJECTFOLDER="$2"
+    PROJECTFOLDER=$(echo "$2" |awk '{if(substr($0,length($0),1)=="/"){print substr($0,1,length($0)-1)}else{print $0}}')
     shift # past argument
     shift # past value
     ;;
     -f|--fastqfolder)
-    FASTQFOLDER="$2"
+    FASTQFOLDER=$(echo "$2" |awk '{if(substr($0,length($0),1)=="/"){print substr($0,1,length($0)-1)}else{print $0}}')
     shift # past argument
     shift # past value
     ;;
@@ -109,21 +104,27 @@ for mod in $MODULE
 do
     case $mod in
         "statusb")
+            source $ESCLAVOHOME/modules/statusb.sh
             statusb $FORCE
         ;;
         "humanDecont")
+            source $ESCLAVOHOME/modules/humanDecont.sh
             #humanDecont
         ;;
         "qc")
+            source $ESCLAVOHOME/modules/qc.sh
             qc
         ;;
         "statusa")
+            source $ESCLAVOHOME/modules/statusa.sh
             statusa $FORCE
         ;;
         "assignTaxonomy")
+            source $ESCLAVOHOME/modules/assignTaxonomy.sh
             assignTaxonomy 2-taxInsight
         ;;
         "report")
+            source $ESCLAVOHOME/modules/report.sh
             makeReport 0-raw 1-qc 2-taxInsight
         ;;
         *)

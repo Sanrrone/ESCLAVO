@@ -11,6 +11,7 @@ library(DT)
 library(digest)
 library(dplyr)
 library(ggplot2)
+library(plotly)
 
 #library(jsonlite)
 #source("Modules/themes_modules.R")

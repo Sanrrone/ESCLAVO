@@ -53,19 +53,14 @@ function assignTaxonomy {
 	write.table(otu_table(ps),'otu_table.tsv',sep='\t')
 	write.table(tax_table(ps),'tax_table.tsv',sep='\t')
 
-
-	top10 <- names(sort(taxa_sums(ps), decreasing=TRUE))[1:10]
-	ps.top10 <- transform_sample_counts(ps, function(OTU) OTU/sum(OTU))
-	ps.top10 <- prune_taxa(top10, ps.top10)
-	hformula=10
-
 	if(file.exists('$FASTQFOLDER/metadata.tsv')){
 	  metadata<-read.table('$FASTQFOLDER/metadata.tsv', sep='\t', header=T, stringsAsFactors = F)
-	  rownames(metadata)<-metadata$sample
+	  rownames(metadata)<-metadata\$sample
+	  write.table(sample_data(metadata),'sample_table.tsv',sep='\t')
 	  sample_data(ps)<-sample_data(metadata)
 	  ordu = ordinate(ps, 'PCoA', weighted=TRUE)
-	  pdf('pcoa.pdf', width=10, height=10)
-	  plot_ordination(ps, ordu, color='treatment') + geom_point(size=3)
+	  png('pcoa.png', width = 800,height = 600, units = 'px')
+	  print(plot_ordination(ps, ordu, color='treatment') + geom_point(size=4))
 	  dev.off()
 	}else{
 	  metadata<-data.frame()
@@ -75,6 +70,7 @@ function assignTaxonomy {
 	top10 <- names(sort(taxa_sums(ps), decreasing=TRUE))[1:10]
 	ps.top10 <- transform_sample_counts(ps, function(OTU) OTU/sum(OTU))
 	ps.top10 <- prune_taxa(top10, ps.top10)
+	hformula=10
 
 	if(nrow(metadata)!=0 & 'treatment' %in% colnames(metadata) & 'sample' %in% colnames(metadata)){
 
