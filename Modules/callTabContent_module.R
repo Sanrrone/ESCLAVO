@@ -39,9 +39,16 @@ tabContentModule<-function(input, output, session, parentSession) {
             
             cpudf<-getcpudf()
             atype<-projectConf()["analysis",]
-
+            for(step in getAnalysisStepsNames(pipelines[[atype]])){
+              stepDir<-getStep(pipelines[[atype]],step)$folder
+              pipelines[[atype]]<-setNewStepFolder(pipelines[[atype]],step,paste0(projectConf()["pfolder",],"/",stepDir))
+              
+            }
+            #print(getAnalysisSteps(pipelines[[atype]]))
+            
+            
             output$tabContentUI <- renderUI({
-              pipelines[[atype]]<-setNewStepFolder(pipelines[[atype]],1,projectConf()["ffolder",])
+              
               tabitems<-list()
               
               tabitems[["welcome"]]<-tabItem( #fist tab - static
@@ -108,7 +115,6 @@ tabContentModule<-function(input, output, session, parentSession) {
                                              ),
                                              fluidRow(
                                                lapply(getAnalysisSteps(pipelines[[atype]]),function(x){
-                                                 
                                                  confFileName<-paste0(x$folder,"/",x$stepID,".conf")
                                                  if(!file.exists(confFileName)){
                                                    dashblabel<-"not-performed"
@@ -248,14 +254,14 @@ tabContentModule<-function(input, output, session, parentSession) {
                                  checkFunc = function(){ digest("/proc/stat",algo="md5",file=TRUE) },
                                  valueFunc = function(){ getCPUusage(cpudf) })
             
-            output$cpuUsageBox <- renderCachedPlot(expr = {
+            output$cpuUsageBox <- renderPlot(expr = {
               #options(warn=-1)
               ggplot(cputop(),aes(x=cpu,y=usage,fill=cpu)) + geom_bar(stat = "identity") +
                 ylim(0,105) + theme_minimal() +
                 geom_text(data = cputop(), nudge_y = 3, angle = 0,
                           aes(x = cpu, y = usage, label = usage))
               #options(warn=0)
-            },cputop())
+            })
             
            # updateProgressBar(session = session, id = "pb_pstatus", 
            #                   value = as.numeric(projectConf()["pPercent",]), total = 100)

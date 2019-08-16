@@ -20,6 +20,12 @@ setMethod("getAnalysisVersion", "pipeline", function(ob) {return(ob@version)})
 setGeneric("getAnalysisSteps", function(ob) {standardGeneric("getAnalysisSteps")})
 setMethod("getAnalysisSteps", "pipeline", function(ob) {return(ob@steps)})
 
+setGeneric("getAnalysisStepsNames", function(ob) {standardGeneric("getAnalysisStepsNames")})
+setMethod("getAnalysisStepsNames", "pipeline", function(ob) {return(names(ob@steps))})
+
+setGeneric("getStep", function(ob,step) {standardGeneric("getStep")})
+setMethod("getStep", "pipeline", function(ob,step) {return(ob@steps[[step]])})
+
 setGeneric("setNewStepFolder", function(ob,step,newfolder) {standardGeneric("setNewStepFolder")})
 setMethod("setNewStepFolder", "pipeline", function(ob,step,newfolder) {
   ob@steps[[step]]$folder<-newfolder
