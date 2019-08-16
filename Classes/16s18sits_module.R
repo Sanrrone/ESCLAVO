@@ -66,7 +66,7 @@ statusbTabModule<-function(input,output,session, stepID){
               gradientColor = "purple",  boxToolSize = "xs", collapsible = T,
               footer = fluidRow(column(width = 12,
                                        tags$iframe(seamless = "seamless",
-                                                   src=paste0("ffolder/multiqc_report.html"),
+                                                   src="ffolder/multiqc_report.html",
                                                    height=600, width="100%",frameborder=0)
               ))
           )

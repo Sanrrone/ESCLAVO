@@ -39,6 +39,7 @@ tabContentModule<-function(input, output, session, parentSession) {
             
             cpudf<-getcpudf()
             atype<-projectConf()["analysis",]
+
             output$tabContentUI <- renderUI({
               pipelines[[atype]]<-setNewStepFolder(pipelines[[atype]],1,projectConf()["ffolder",])
               tabitems<-list()
@@ -171,8 +172,6 @@ tabContentModule<-function(input, output, session, parentSession) {
                                                                                                                   "References: 5"))
                                                                          )
                                                                          )
-                                                                         # server
-                                                                         #updateProgressBar(session = session, id = "pb8", value = input$slider, total = 5000)
                                                              )
                                              ),
                                              column(width=4,
@@ -209,6 +208,8 @@ tabContentModule<-function(input, output, session, parentSession) {
                                                                                      label = "View", style = "jelly",
                                                                                      color = "primary", icon = icon("eye")
                                                                          )
+                                                                         #tags$html('<script src="https://code.jquery.com/jquery-1.10.2.js"></script>')
+  
                                                                   )
                                                                 )
                                                                 # server
@@ -219,10 +220,9 @@ tabContentModule<-function(input, output, session, parentSession) {
                                              fluidRow(
                                                gradientBox(title = "Report view", width = 12, icon = 'fa fa-eye',
                                                            gradientColor = "blue", boxToolSize = "xs", 
-                                                           footer = fluidRow(column(width = 12
-                                                                                    
-                                                           )) # server
-                                                           #updateProgressBar(session = session, id = "pb8", value = input$slider, total = 5000)
+                                                           footer = fluidRow(column(width = 12,
+                                                                              uiOutput(ns("reportViewUI"))
+                                                           ))
                                                )
                                              )
               )
@@ -261,6 +261,27 @@ tabContentModule<-function(input, output, session, parentSession) {
            #                   value = as.numeric(projectConf()["pPercent",]), total = 100)
            # 
             
+            output$reportViewUI<-renderUI({
+              if(!file.exists(paste0(projectFolder(),"/report.pdf")) | !file.exists(paste0(projectFolder(),"/report.html")))return()
+              
+              addResourcePath("pfolder", projectFolder()) #add fastq folder to allow iframe load the local html file
+              
+              tags$iframe(seamless = "seamless",
+                          src="pfolder/report.pdf",
+                          height=800, width="100%",frameborder=0)
+              
+              tags$script(HTML(
+                "$('#tabcontmodule-viewDynaRepBtn').click(function() {
+                       window.open('pfolder/report.html','_blank');
+                    });"
+              ))
+              
+
+            })
+            
+            
+            
+            
             
             
           })
@@ -272,7 +293,6 @@ tabContentModule<-function(input, output, session, parentSession) {
 
   #check when start pipeline is pressed
   observeEvent(input$startPipelinebtn,{
-    removeUI(selector='#startPipelinebtn', immediate=TRUE)
     setwd(esclavoHome)
     pfolder<-projectConf()["pfolder",]
     folder<-projectConf()["ffolder",]
@@ -283,4 +303,21 @@ tabContentModule<-function(input, output, session, parentSession) {
     
   },ignoreNULL = T, ignoreInit = T)
 
+  observeEvent(input$viewStaticRepBtn,{
+    output$reportViewUI<-renderUI({
+      if(!file.exists(paste0(projectFolder(),"/report.pdf")))return()
+      addResourcePath("pfolder", projectFolder()) #add fastq folder to allow iframe load the local html file
+      
+      tags$iframe(seamless = "seamless",
+                  src="pfolder/report.pdf",
+                  height=800, width="100%",frameborder=0)
+    })
+    
+  },ignoreNULL = T,ignoreInit = T)
+
+
+  
+  
+  
+  
 }
