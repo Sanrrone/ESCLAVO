@@ -79,12 +79,14 @@ statusbTabModule<-function(input,output,session, stepID){
         column(width=12,
                tags$h5("Reads status not started yet"),
                actionBttn(
-                 inputId = ns("startRSbtn"),
+                 inputId = ns("startRSBbtn"),
                  label = "Start",
                  style = "jelly",
                  color = "danger",
                  icon = icon("rocket")
                ))
+      }else if (stepStatus=="running"){
+        getDashboardLabel(stepStatus)
       }else if (stepStatus=="done"){
         getDashboardLabel(stepStatus)
       }else{
@@ -99,6 +101,19 @@ statusbTabModule<-function(input,output,session, stepID){
     })
 
   })
+  
+  
+  observeEvent(input$startRSBbtn,{
+    setwd(esclavoHome)
+    pfolder<-projectConf()["pfolder",]
+    folder<-projectConf()["ffolder",]
+    fqpattern<-projectConf()["fqpattern",]
+    analysis<-projectConf()["analysis",]#same name for files
+    system(paste0("bash pipelines/launcher.sh pipelines/",analysis,"/",analysis,
+                  ".sh --force -p ",pfolder," -f ",folder," -pt ",fqpattern," -m all"),
+           wait = F,intern = F, timeout = 0)
+  },ignoreNULL = T, ignoreInit = T)
+  
 }
 
 qcUIm<-function(id, stepTabName, folder, soft, sversion, spath){
@@ -126,7 +141,7 @@ qcUIm<-function(id, stepTabName, folder, soft, sversion, spath){
                  )
           ),
           column(width = 3,
-                 gradientBox(title = "Reads before QC", width = 12, icon = 'fa fa-stream',
+                 gradientBox(title = "QC step", width = 12, icon = 'fa fa-stream',
                              gradientColor = "purple",  boxToolSize = "xs",
                              footer = fluidRow(
                                column(width = 12,
@@ -177,35 +192,53 @@ qcModule<-function(input,output,session,stepID){
     })
     
     output$qcUI<-renderUI({
-      
-      if(stepStatus=="not-performed"){
+      if(!file.exists(paste0(pfolder,stepID,".conf"))){
         column(width=12,
-               tags$h5("QC not started yet"),
-               actionBttn(
-                 inputId = ns("startQCbtn"),
-                 label = "Start",
-                 style = "jelly",
-                 color = "danger",
-                 icon = icon("rocket")
-               ))
-      }else if (stepStatus=="done"){
-        getDashboardLabel(stepStatus)
-      }else{
-        column(width=12,
-               tags$h4(projectConf()["lastStep",])
+               tags$h4("Waiting for 'status of reads' step")
         )
+      }else{
+        if(stepStatus=="not-performed"){
+          column(width=12,
+                 tags$h5("QC not started yet"),
+                 actionBttn(
+                   inputId = ns("startQCbtn"),
+                   label = "Start",
+                   style = "jelly",
+                   color = "danger",
+                   icon = icon("rocket")
+                 ))
+        }else if (stepStatus=="running"){
+          getDashboardLabel(stepStatus)
+        }else if (stepStatus=="done"){
+          getDashboardLabel(stepStatus)
+        }else{
+          column(width=12,
+                 tags$h4(projectConf()["lastStep",])
+          )
+        }
       }
+
+
     })
     
-
     output$qcReportUI<- renderDataTable({
       if(!file.exists(paste0(pfolder,"qc_summary.tsv")))return()
       qcdf<-read.table(paste0(pfolder,"qc_summary.tsv"),sep = "\t",stringsAsFactors = F)
       datatable(qcdf,options = list(scrollX=TRUE, scrollCollapse=TRUE))
     })
 
-    
   })
+  
+  observeEvent(input$startQCbtn,{
+    setwd(esclavoHome)
+    pfolder<-projectConf()["pfolder",]
+    folder<-projectConf()["ffolder",]
+    fqpattern<-projectConf()["fqpattern",]
+    analysis<-projectConf()["analysis",]#same name for files
+    system(paste0("bash pipelines/launcher.sh pipelines/",analysis,"/",analysis,
+                  ".sh --force -p ",pfolder," -f ",folder," -pt ",fqpattern," -m 'qc statusa assignTaxonomy report'"),
+           wait = F,intern = F, timeout = 0)
+  },ignoreNULL = T, ignoreInit = T)
 }
 
   
@@ -288,23 +321,30 @@ statusaTabModule<-function(input,output,session, stepID){
     }
     
     output$statusaUI<-renderUI({
-      
-      if(stepStatus=="not-performed"){
+      if(!file.exists(paste0(pfolder,stepID,".conf"))){
         column(width=12,
-               tags$h5("Reads status not started yet"),
-               actionBttn(
-                 inputId = ns("startRSafterbtn"),
-                 label = "Start",
-                 style = "jelly",
-                 color = "danger",
-                 icon = icon("rocket")
-               ))
-      }else if (stepStatus=="done"){
-        getDashboardLabel(stepStatus)
-      }else{
-        column(width=12,
-               tags$h4(projectConf()["lastStep",])
+               tags$h4("Waiting for 'QC' step")
         )
+      }else{
+        if(stepStatus=="not-performed"){
+          column(width=12,
+                 tags$h5("Reads status not started yet"),
+                 actionBttn(
+                   inputId = ns("startRSafterbtn"),
+                   label = "Start",
+                   style = "jelly",
+                   color = "danger",
+                   icon = icon("rocket")
+                 ))
+        }else if (stepStatus=="running"){
+          getDashboardLabel(stepStatus)
+        }else if (stepStatus=="done"){
+          getDashboardLabel(stepStatus)
+        }else{
+          column(width=12,
+                 tags$h4(projectConf()["lastStep",])
+          )
+        }
       }
     })
     
@@ -313,6 +353,17 @@ statusaTabModule<-function(input,output,session, stepID){
     })
     
   })
+  
+  observeEvent(input$startRSafterbtn,{
+    setwd(esclavoHome)
+    pfolder<-projectConf()["pfolder",]
+    folder<-projectConf()["ffolder",]
+    fqpattern<-projectConf()["fqpattern",]
+    analysis<-projectConf()["analysis",]#same name for files
+    system(paste0("bash pipelines/launcher.sh pipelines/",analysis,"/",analysis,
+                  ".sh --force -p ",pfolder," -f ",folder," -pt ",fqpattern," -m 'statusa assignTaxonomy report'"),
+           wait = F,intern = F, timeout = 0)
+  },ignoreNULL = T, ignoreInit = T)
 }
 
 taxCountTabUIm<-function(id, stepTabName,folder, soft, sversion, spath){
@@ -349,14 +400,7 @@ taxCountTabUIm<-function(id, stepTabName,folder, soft, sversion, spath){
                      
                    ),
                    fluidRow(
-                     gradientBox(title = "Principal Component Analysis", width = 12, icon = 'fa fa-stream',
-                                 gradientColor = "purple",  boxToolSize = "xs",
-                                 footer = fluidRow(
-                                   column(width = 12,
-                                          plotlyOutput(ns("TCpcoa"))
-                                   )
-                                 )
-                     )
+                     uiOutput(ns("TCpcaUI"))
                    )
             ),
             column(width = 6,
@@ -445,24 +489,44 @@ taxCountTabModule<-function(input,output,session, stepID){
 
     }
     
+    output$TCpcaUI <- renderUI({
+      if(stepStatus!="done")return()
+      gradientBox(title = "Principal Component Analysis", width = 12, icon = 'fa fa-stream',
+                  gradientColor = "purple",  boxToolSize = "xs",
+                  footer = fluidRow(
+                    column(width = 12,
+                           plotlyOutput(ns("TCpcoa"))
+                    )
+                  )
+      )
+    })
+    
+    
     output$tcUI<-renderUI({
-      
-      if(stepStatus=="not-performed"){
+      if(!file.exists(paste0(pfolder,stepID,".conf"))){
         column(width=12,
-               tags$h5("Reads status not started yet"),
-               actionBttn(
-                 inputId = ns("startTCbtn"),
-                 label = "Start",
-                 style = "jelly",
-                 color = "danger",
-                 icon = icon("rocket")
-               ))
-      }else if (stepStatus=="done"){
-        getDashboardLabel(stepStatus)
-      }else{
-        column(width=12,
-               tags$h4(projectConf()["lastStep",])
+               tags$h4("Waiting for 'Status after QC' step")
         )
+      }else{
+        if(stepStatus=="not-performed"){
+          column(width=12,
+                 tags$h5("Reads status not started yet"),
+                 actionBttn(
+                   inputId = ns("startTCbtn"),
+                   label = "Start",
+                   style = "jelly",
+                   color = "danger",
+                   icon = icon("rocket")
+                 ))
+        }else if (stepStatus=="running"){
+          getDashboardLabel(stepStatus)
+        }else if (stepStatus=="done"){
+          getDashboardLabel(stepStatus)
+        }else{
+          column(width=12,
+                 tags$h4(projectConf()["lastStep",])
+          )
+        }
       }
     })
     
@@ -496,4 +560,15 @@ taxCountTabModule<-function(input,output,session, stepID){
     })
     
   })
+  
+  observeEvent(input$startTCbtn,{
+    setwd(esclavoHome)
+    pfolder<-projectConf()["pfolder",]
+    folder<-projectConf()["ffolder",]
+    fqpattern<-projectConf()["fqpattern",]
+    analysis<-projectConf()["analysis",]#same name for files
+    system(paste0("bash pipelines/launcher.sh pipelines/",analysis,"/",analysis,
+                  ".sh --force -p ",pfolder," -f ",folder," -pt ",fqpattern," -m 'assignTaxonomy report'"),
+           wait = F,intern = F, timeout = 0)
+  },ignoreNULL = T, ignoreInit = T)
 }

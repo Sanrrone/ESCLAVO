@@ -36,7 +36,6 @@ tabContentModule<-function(input, output, session, parentSession) {
                                                       header = T,sep = "\t",stringsAsFactors = F,
                                                       row.names = 1))
             
-            
             cpudf<-getcpudf()
             atype<-projectConf()["analysis",]
             for(step in getAnalysisStepsNames(pipelines[[atype]])){
@@ -91,6 +90,10 @@ tabContentModule<-function(input, output, session, parentSession) {
                                                                                            color = "danger",
                                                                                            icon = icon("rocket")
                                                                                          ))
+                                                                                }else if(as.numeric(projectConf()["pPercent",]==100)){
+                                                                                  column(width=12,
+                                                                                         tags$strong("Analysis "),getDashboardLabel("done")
+                                                                                  )
                                                                                 }else{
                                                                                   column(width=12,
                                                                                          tags$strong("Last step: "),projectConf()["lastStep",]
