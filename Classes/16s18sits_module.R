@@ -109,7 +109,7 @@ statusbTabModule<-function(input,output,session, stepID){
     folder<-projectConf()["ffolder",]
     fqpattern<-projectConf()["fqpattern",]
     analysis<-projectConf()["analysis",]#same name for files
-    system(paste0("bash pipelines/launcher.sh pipelines/",analysis,"/",analysis,
+    system(paste0("setsid bash pipelines/",analysis,"/",analysis,
                   ".sh --force -p ",pfolder," -f ",folder," -pt ",fqpattern," -m all"),
            wait = F,intern = F, timeout = 0)
   },ignoreNULL = T, ignoreInit = T)
@@ -235,7 +235,7 @@ qcModule<-function(input,output,session,stepID){
     folder<-projectConf()["ffolder",]
     fqpattern<-projectConf()["fqpattern",]
     analysis<-projectConf()["analysis",]#same name for files
-    system(paste0("bash pipelines/launcher.sh pipelines/",analysis,"/",analysis,
+    system(paste0("setsid bash pipelines/",analysis,"/",analysis,
                   ".sh --force -p ",pfolder," -f ",folder," -pt ",fqpattern," -m 'qc statusa assignTaxonomy report'"),
            wait = F,intern = F, timeout = 0)
   },ignoreNULL = T, ignoreInit = T)
@@ -360,7 +360,7 @@ statusaTabModule<-function(input,output,session, stepID){
     folder<-projectConf()["ffolder",]
     fqpattern<-projectConf()["fqpattern",]
     analysis<-projectConf()["analysis",]#same name for files
-    system(paste0("bash pipelines/launcher.sh pipelines/",analysis,"/",analysis,
+    system(paste0("setsid bash pipelines/",analysis,"/",analysis,
                   ".sh --force -p ",pfolder," -f ",folder," -pt ",fqpattern," -m 'statusa assignTaxonomy report'"),
            wait = F,intern = F, timeout = 0)
   },ignoreNULL = T, ignoreInit = T)
@@ -567,7 +567,7 @@ taxCountTabModule<-function(input,output,session, stepID){
     folder<-projectConf()["ffolder",]
     fqpattern<-projectConf()["fqpattern",]
     analysis<-projectConf()["analysis",]#same name for files
-    system(paste0("bash pipelines/launcher.sh pipelines/",analysis,"/",analysis,
+    system(paste0("setsid bash pipelines/",analysis,"/",analysis,
                   ".sh --force -p ",pfolder," -f ",folder," -pt ",fqpattern," -m 'assignTaxonomy report'"),
            wait = F,intern = F, timeout = 0)
   },ignoreNULL = T, ignoreInit = T)
