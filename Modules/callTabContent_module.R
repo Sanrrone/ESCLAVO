@@ -1,5 +1,4 @@
-source("Modules/changeProjectDir_ui.R")
-source("Modules/news_ui.R")
+source("Modules/news_module.R")
 
 callTabContent<-function(id){
   ns<-NS(id)
@@ -21,7 +20,7 @@ tabContentModule<-function(input, output, session, parentSession) {
         openProjectUIm("openProjectmodule"),
         changeProjectDirUIm("changeProjectDirmodule")
       ),
-      newsUIm("news")
+      newsUIm("newsmodule")
     )
   })
 
@@ -41,7 +40,6 @@ tabContentModule<-function(input, output, session, parentSession) {
             for(step in getAnalysisStepsNames(pipelines[[atype]])){
               stepDir<-getStep(pipelines[[atype]],step)$folder
               pipelines[[atype]]<-setNewStepFolder(pipelines[[atype]],step,paste0(projectConf()["pfolder",],"/",stepDir))
-              
             }
             #print(getAnalysisSteps(pipelines[[atype]]))
             

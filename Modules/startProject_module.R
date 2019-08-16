@@ -142,7 +142,7 @@ newProjectModule<-function(input, output, session) {
     pname<-strsplit(Ppath,"/")[[1]]
     pname<-pname[length(pname)]
     #if(!file.exists(paste0(pname,"_eConf.tsv"))){
-      aoptions<-makeProjectDescription(Ppath,Fpath,
+      aoptions<-makeProjectDescription(pname,Ppath,Fpath,
                                        input$analysisType,
                                        getAnalysisVersion(pipelines[[input$analysisType]]),
                                        "not-performed",0,"none")

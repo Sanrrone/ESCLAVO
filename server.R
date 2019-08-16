@@ -1,6 +1,7 @@
 source("Modules/rsidebar_server.R")
 source("Modules/startProject_module.R")
 source("Modules/openProject_module.R")
+source("Modules/changeProjectDir_module.R")
 
 function(input, output, session) {
   
@@ -11,7 +12,8 @@ function(input, output, session) {
   callModule(analysisAvailsModule,"analysisavails")
   callModule(newProjectModule,"startProjectmodule")
   callModule(openProjectModule,"openProjectmodule")
-  #callModule(changeProjectDirModule,"changeProjectDirmodule")
+  callModule(changeProjectDirModule,"changeProjectDirmodule")
+  callModule(newsServerm,"newsmodule")
   callModule(tabContentModule,"tabcontmodule",session)
   
   #call Step pipelines modules

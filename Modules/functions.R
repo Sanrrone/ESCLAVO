@@ -8,6 +8,7 @@ for(module in names(analysisAvail)){
   pipelines[[module]]<-getpipeline()
 }
 esclavoHome<-getwd()
+AllprojectsFolder<-reactiveVal("")
 projectName<-reactiveVal("")
 analysisType<-reactiveVal("")
 projectFolder<-reactiveVal("/home/sandro/Programas/ESCLAVO/projects")
@@ -26,12 +27,12 @@ getcpudf<-function(){
 #cpudf1<-reactiveVal(cpudf1)
 ##############################
 
-makeProjectDescription<-function(projectFolder,fastqFolder,analysisType, aVersion, pStatus,pPercent,lStep){
-  rnames<-c("pfolder","ffolder","fqpattern","analysis","aversion","created","status","pPercent","lastStep")
+makeProjectDescription<-function(projectName,projectFolder,fastqFolder,analysisType, aVersion, pStatus,pPercent,lStep){
+  rnames<-c("pname","pfolder","ffolder","fqpattern","analysis","aversion","created","status","pPercent","lastStep")
   nfastq<-length(list.files(fastqFolder,"*.fastq.gz"))
   fastqPattern<-ifelse(nfastq == 0,".fastq",".fastq.gz")
 
-  df<-data.frame(value=c(projectFolder,fastqFolder,fastqPattern,
+  df<-data.frame(value=c(projectName,projectFolder,fastqFolder,fastqPattern,
                                        analysisType,aVersion,
                                        Sys.Date(),pStatus,pPercent,lStep),
                  stringsAsFactors = F)
