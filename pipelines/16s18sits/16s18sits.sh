@@ -89,6 +89,7 @@ export PCONF=$(pwd | awk -v pname=$PNAME '{print $0"/"pname}')
 
 if [ ! -f "$PNAME" ] || [ $FORCE ]; then
 	echo "	value" > $PNAME
+    echo "pname	$(pwd | awk -F"/" '{print $NF}')" >> $PNAME
 	echo "pfolder	$(pwd)" >> $PNAME
 	echo "ffolder	$FASTQFOLDER" >> $PNAME
 	echo "fqpattern	$PATTERN" >> $PNAME
@@ -103,33 +104,33 @@ fi
 for mod in $MODULE
 do
     case $mod in
-        "statusb")
-            source $ESCLAVOHOME/modules/statusb.sh
-            statusb $FORCE
-        ;;
-        "humanDecont")
-            source $ESCLAVOHOME/modules/humanDecont.sh
-            #humanDecont
-        ;;
-        "qc")
-            source $ESCLAVOHOME/modules/qc.sh
-            qc
-        ;;
-        "statusa")
-            source $ESCLAVOHOME/modules/statusa.sh
-            statusa $FORCE
-        ;;
-        "assignTaxonomy")
-            source $ESCLAVOHOME/modules/assignTaxonomy.sh
-            assignTaxonomy 2-taxInsight
-        ;;
-        "report")
-            source $ESCLAVOHOME/modules/report.sh
-            makeReport 0-raw 1-qc 2-taxInsight
-        ;;
-        *)
-            echo "Module $mod not recognized"
-        ;;
+	   "statusb")
+		  source $ESCLAVOHOME/modules/statusb.sh
+		  statusb $FORCE
+	   ;;
+	   "humanDecont")
+		  source $ESCLAVOHOME/modules/humanDecont.sh
+		  #humanDecont
+	   ;;
+	   "qc")
+		  source $ESCLAVOHOME/modules/qc.sh
+		  qc
+	   ;;
+	   "statusa")
+		  source $ESCLAVOHOME/modules/statusa.sh
+		  statusa $FORCE
+	   ;;
+	   "assignTaxonomy")
+		  source $ESCLAVOHOME/modules/assignTaxonomy.sh
+		  assignTaxonomy 2-taxInsight
+	   ;;
+	   "report")
+		  source $ESCLAVOHOME/modules/report.sh
+		  makeReport 0-raw 1-qc 2-taxInsight
+	   ;;
+	   *)
+		  echo "Module $mod not recognized"
+	   ;;
     esac
     cd $PROJECTFOLDER
 done
@@ -137,15 +138,15 @@ done
 echo "ESCLAVO: Pipeline done :)"
 
     
-#         ___     _,.--.,_                ___     _,.--.,_                 ___     _,.--.,_               ___     _,.--.,_    
-#      .-~   ~--"~-.   ._ "-.          .-~   ~--"~-.   ._ "-.          .-~   ~--"~-.   ._ "-.          .-~   ~--"~-.   ._ "-.    
-#     /      ./_    Y    "-. \        /      ./_    Y    "-. \        /      ./_    Y    "-. \        /      ./_    Y    "-. \    
-#    Y       :~     !         Y      Y       :~     !         Y      Y       :~     !         Y      Y       :~     !         Y    
-#    lq p    |     /         .|      lq p    |     /         .|      lq p    |     /         .|      lq p    |     /         .|    
-# _   \. .-, l    /          |j   _   \. .-, l    /          |j   _   \. .-, l    /          |j   _   \. .-, l    /          |j    
-#()\___) |/   \_/";          !   ()\___) |/   \_/";          !   ()\___) |/   \_/";          !   ()\___) |/   \_/";          !    
-# \._____.-~\  .  ~\.      ./     \._____.-~\  .  ~\.      ./     \._____.-~\  .  ~\.      ./     \._____.-~\  .  ~\.      ./    
-#            Y_ Y_. "vr"~  T                 Y_ Y_. "vr"~  T                 Y_ Y_. "vr"~  T                 Y_ Y_. "vr"~  T    
-#            (  (    |L    j                 (  (    |L    j                 (  (    |L    j                 (  (    |L    j    
-#            [nn[nn..][nn..]                 [nn[nn..][nn..]                 [nn[nn..][nn..]                 [nn[nn..][nn..]    
-#        ~~~~~~~~~~~~~~~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~   
+#	    ___	_,.--.,_			 ___	_,.--.,_			  ___	_,.--.,_			___	_,.--.,_    
+#	 .-~   ~--"~-.   ._ "-.		.-~   ~--"~-.   ._ "-.		.-~   ~--"~-.   ._ "-.		.-~   ~--"~-.   ._ "-.    
+#	/	 ./_    Y    "-. \	   /	 ./_    Y    "-. \	   /	 ./_    Y    "-. \	   /	 ./_    Y    "-. \    
+#    Y	  :~	!	    Y	 Y	  :~	!	    Y	 Y	  :~	!	    Y	 Y	  :~	!	    Y    
+#    lq p    |	/	    .|	 lq p    |	/	    .|	 lq p    |	/	    .|	 lq p    |	/	    .|    
+# _   \. .-, l    /		|j   _   \. .-, l    /		|j   _   \. .-, l    /		|j   _   \. .-, l    /		|j    
+#()\___) |/   \_/";		!   ()\___) |/   \_/";		!   ()\___) |/   \_/";		!   ()\___) |/   \_/";		!    
+# \._____.-~\  .  ~\.	 ./	\._____.-~\  .  ~\.	 ./	\._____.-~\  .  ~\.	 ./	\._____.-~\  .  ~\.	 ./    
+#		  Y_ Y_. "vr"~  T			  Y_ Y_. "vr"~  T			  Y_ Y_. "vr"~  T			  Y_ Y_. "vr"~  T    
+#		  (  (    |L    j			  (  (    |L    j			  (  (    |L    j			  (  (    |L    j    
+#		  [nn[nn..][nn..]			  [nn[nn..][nn..]			  [nn[nn..][nn..]			  [nn[nn..][nn..]    
+#	   ~~~~~~~~~~~~~~~~~~~~~~~	    ~~~~~~~~~~~~~~~~~~~~~~~	    ~~~~~~~~~~~~~~~~~~~~~~~	    ~~~~~~~~~~~~~~~~~~~~~~~   

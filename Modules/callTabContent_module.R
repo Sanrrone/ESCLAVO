@@ -305,7 +305,7 @@ tabContentModule<-function(input, output, session, parentSession) {
     folder<-projectConf()["ffolder",]
     fqpattern<-projectConf()["fqpattern",]
     analysis<-projectConf()["analysis",]#same name for files
-    system(paste0("bash pipelines/launcher.sh pipelines/",analysis,"/",analysis,".sh --force -p ",pfolder," -f ",folder," -pt ",fqpattern),
+    system(paste0("setsid bash pipelines/",analysis,"/",analysis,".sh --force -p ",pfolder," -f ",folder," -pt ",fqpattern),
             wait = F,intern = F, timeout = 0)
     
   },ignoreNULL = T, ignoreInit = T)

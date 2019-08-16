@@ -56,7 +56,6 @@ newsServerm<-function(input, output, session, parentSession) {
                  
                    aoptions<-read.csv(x, header = T,sep = "\t",stringsAsFactors = F,row.names = 1)
                    pname<-aoptions["pname",]
-                   print(aoptions)
                    progressBar(id = pname, value = as.numeric(aoptions["pPercent",]), total = 100, status = "info", 
                                display_pct = TRUE, striped = TRUE, title = paste0("Project: ",pname))
                  

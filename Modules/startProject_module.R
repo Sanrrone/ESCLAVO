@@ -132,6 +132,9 @@ newProjectModule<-function(input, output, session) {
       sendSweetAlert(session,title = "Warning",text = "No fastq folder select",type = "error")
       return()
     }
+    if(!dir.exists(Ppath)){
+      dir.create(Ppath)
+    }
     loadingState()
     switch(input$fastqActions,
            "1" = {},
@@ -153,8 +156,6 @@ newProjectModule<-function(input, output, session) {
     analysisType(input$analysisType)
     projectFolder(Ppath)
     projectName(pname)
-    
-    
 
     removeModal()
 
