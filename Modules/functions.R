@@ -11,7 +11,7 @@ esclavoHome<-getwd()
 AllprojectsFolder<-reactiveVal("")
 projectName<-reactiveVal("")
 analysisType<-reactiveVal("")
-projectFolder<-reactiveVal("/home/sandro/Programas/ESCLAVO/projects")
+projectFolder<-reactiveVal("")
 projectConf<-reactiveVal(data.frame())
 
 ############################# set cpu usage value
