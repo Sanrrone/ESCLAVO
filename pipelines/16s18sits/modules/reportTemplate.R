@@ -1,3 +1,11 @@
+if('rmarkdown' %in% rownames(installed.packages()) == FALSE) {install.packages('rmarkdown')}
+if('rmdformats' %in% rownames(installed.packages()) == FALSE) {install.packages('rmdformats')}
+if('DT' %in% rownames(installed.packages()) == FALSE) {install.packages('DT')}
+if('dplyr' %in% rownames(installed.packages()) == FALSE) {install.packages('dplyr')}
+if('reshape2' %in% rownames(installed.packages()) == FALSE) {install.packages('reshape2')}
+if('plotly' %in% rownames(installed.packages()) == FALSE) {install.packages('plotly')}
+if('stringr' %in% rownames(installed.packages()) == FALSE) {install.packages('stringr')}
+
 library(rmarkdown)
 library(rmdformats)
 library(DT)

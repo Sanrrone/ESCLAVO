@@ -23,9 +23,11 @@ function qc {
 	echo "stepStatus" > tmp2
 	echo $nfiles |awk '{for(i=1;i<=$1;i++)print "running"}' >> tmp2
 	paste tmp0 tmp1 tmp2 > qc.conf && rm tmp0 tmp1 tmp2
-	    
+	
 	echo "
 	rm(list=ls())
+	if('BiocManager' %in% rownames(installed.packages()) == FALSE) {install.packages('BiocManager')}
+	if('dada2' %in% rownames(installed.packages()) == FALSE) {BiocManager::install('dada2')}
 	library(dada2)
 	options(scipen=999)
 	

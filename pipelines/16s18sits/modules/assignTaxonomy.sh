@@ -28,6 +28,12 @@ function assignTaxonomy {
 
 	echo "ESCLAVO: assignTaxonomy begin"
 	echo "
+	if('BiocManager' %in% rownames(installed.packages()) == FALSE) {install.packages('BiocManager')}
+	if('dada2' %in% rownames(installed.packages()) == FALSE) {BiocManager::install('dada2')}
+	if('phyloseq' %in% rownames(installed.packages()) == FALSE) {BiocManager::install('phyloseq')}
+	if('Biostrings' %in% rownames(installed.packages()) == FALSE) {BiocManager::install('Biostrings')}
+	if('ggplot2' %in% rownames(installed.packages()) == FALSE) {install.packages('ggplot2')}
+
 	library(dada2)
 	library(phyloseq)
 	library(Biostrings)
