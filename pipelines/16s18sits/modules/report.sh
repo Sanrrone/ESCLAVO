@@ -14,7 +14,7 @@ function makeReport {
 	sed -i "s:ABUNDANCEFILE:$taxfolder/abundance.tsv:g" report.R
 	sed -i "s:ABUNDANCEFILE:$taxfolder/abundance.tsv:g" report.Rmd
 	sed -i "s:ESCLAVOLOGO:$ESCLAVOHOME/DB/esclavologo.jpg:g" report.Rmd
-	sed -i "s:TAXFOLDER:$taxfolder:g" report.Rmd
+	sed -i "s:TAXFOLDER:$taxfolder:g" report.R
 
 	Rscript --vanilla report.R
 

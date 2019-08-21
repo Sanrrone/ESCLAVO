@@ -26,7 +26,7 @@ reportParams[["qctable"]]<-qctable
 #execution pdf
 
 ############################## 2-taxInsight
-SummaryAbu<-read.table("ABUNDANCEFILE",sep = "\t",header = T,stringsAsFactors = F)
+SummaryAbu<-read.table("ABUNDANCEFILE",sep = "\t",header = T,stringsAsFactors = F) #abundance file to include in report
 tmp<-data.frame()
 for(col in colnames(SummaryAbu)[-1:-7]){
   top10<-SummaryAbu[order(SummaryAbu[,col],decreasing = T)[1:10],]
@@ -35,6 +35,7 @@ for(col in colnames(SummaryAbu)[-1:-7]){
 SummaryAbu<-tmp[,colnames(tmp)[-1:-4]]
 
 reportParams[["SummaryAbu"]]<-SummaryAbu
+reportParams[["taxcountFolder"]]<-TAXFOLDER #tax folder where pcoa.png is located.
 
 
 

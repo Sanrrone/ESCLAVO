@@ -11,6 +11,7 @@ params:
   allfiles: allfiles
   qctable: qctable
   SummaryAbu: SummaryAbu
+  taxcountFolder: taxcountFolder
 ---
   
   
@@ -173,7 +174,7 @@ if you want the full table, please see the file ABUNDANCEFILE in the proyect fol
 After the taxonomic assigment a Principal Component Analysis was performed to check the similarity (or dissimilarity) between samples, the software behind was phyloseq^4^:
 
 <center>
-![Principal component analysis between samples and color filled by treatments, if points get grouped by colors, it means a good experiment contrast.](TAXFOLDER/pcoa.png)
+![Principal component analysis between samples and color filled by treatments, if points get grouped by colors, it means a good experiment contrast.](`r params$taxcountFolder`/pcoa.png)
 </center>
 
 
