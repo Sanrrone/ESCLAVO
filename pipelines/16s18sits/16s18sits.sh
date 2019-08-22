@@ -108,14 +108,14 @@ do
 		  source $ESCLAVOHOME/modules/statusb.sh
 		  statusb $FORCE
 	   ;;
-	   "humanDecont")
-		  source $ESCLAVOHOME/modules/humanDecont.sh
-		  #humanDecont
-	   ;;
 	   "qc")
 		  source $ESCLAVOHOME/modules/qc.sh
 		  qc
 	   ;;
+       "humanDecont")
+          source $ESCLAVOHOME/modules/humanDecont.sh
+          #humanDecont 1-qc
+       ;;
 	   "statusa")
 		  source $ESCLAVOHOME/modules/statusa.sh
 		  statusa $FORCE
