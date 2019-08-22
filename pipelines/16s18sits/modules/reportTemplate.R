@@ -43,7 +43,7 @@ for(col in colnames(SummaryAbu)[-1:-7]){
 SummaryAbu<-tmp[,colnames(tmp)[-1:-4]]
 
 reportParams[["SummaryAbu"]]<-SummaryAbu
-reportParams[["taxcountFolder"]]<-TAXFOLDER #tax folder where pcoa.png is located.
+reportParams[["taxcountFolder"]]<-"TAXFOLDER" #tax folder where pcoa.png is located.
 
 
 
